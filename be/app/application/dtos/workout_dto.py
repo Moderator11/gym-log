@@ -1,45 +1,40 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from datetime import date, time
 from typing import List, Optional
 
 
-class ExerciseMetricsRequest(BaseModel):
-    """운동 측정값 요청"""
-    weight_kg: Optional[float] = Field(None, ge=0)
-    duration_minutes: Optional[int] = Field(None, ge=1)
-    
-    @validator('duration_minutes')
-    def validate_metrics(cls, v, values):
-        weight = values.get('weight_kg')
-        if weight is None and v is None:
-            raise ValueError('무게 또는 시간 중 하나는 반드시 입력해야 합니다')
-        if weight is not None and v is not None:
-            raise ValueError('무게와 시간은 동시에 입력할 수 없습니다')
-        return v
+class ExerciseSetRequest(BaseModel):
+    """운동 세트 요청 (무게 + 반복 횟수)"""
+    weight_kg: float = Field(..., ge=0)
+    reps: int = Field(..., ge=1)
+
+
+class ExerciseSetResponse(BaseModel):
+    """운동 세트 응답"""
+    set_number: int
+    weight_kg: float
+    reps: int
 
 
 class ExerciseRequest(BaseModel):
     """운동 항목 요청"""
     name: str = Field(..., min_length=1, max_length=100)
-    sets: int = Field(..., ge=1, le=100)
-    metrics: ExerciseMetricsRequest
+    sets: List[ExerciseSetRequest] = Field(..., min_items=1)
 
 
 class ExerciseResponse(BaseModel):
     """운동 항목 응답"""
     id: int
     name: str
-    sets: int
-    weight_kg: Optional[float]
-    duration_minutes: Optional[int]
+    sets: List[ExerciseSetResponse]
 
 
 class WorkoutSessionCreateRequest(BaseModel):
-    """운동 세션 생성 요청"""
+    """운동 세션 생성 요청 (exercises는 빈 배열 허용)"""
     workout_date: date
     start_time: time
     end_time: time
-    exercises: List[ExerciseRequest] = Field(..., min_items=1)
+    exercises: List[ExerciseRequest] = Field(default_factory=list)
 
 
 class WorkoutSessionUpdateRequest(BaseModel):

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/Input";
 import { ExerciseInput, ExerciseInputData } from "./ExerciseInput";
 import { Plus } from "lucide-react";
 import { WorkoutCreateRequest } from "@/types/workout.types";
+import { useCategories } from "@/hooks/useCategories";
 
 interface WorkoutFormProps {
   onSubmit: (data: WorkoutCreateRequest) => Promise<void>;
@@ -17,12 +18,15 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
   );
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
-  const [exercises, setExercises] = useState<ExerciseInputData[]>([
-    { name: "", sets: 1, metricType: "weight" },
-  ]);
+  const [exercises, setExercises] = useState<ExerciseInputData[]>([]);
+
+  const { categories, createCategory } = useCategories();
 
   const addExercise = () => {
-    setExercises([...exercises, { name: "", sets: 1, metricType: "weight" }]);
+    setExercises([
+      ...exercises,
+      { name: "", sets: [{ weight_kg: 0, reps: 1 }] },
+    ]);
   };
 
   const removeExercise = (index: number) => {
@@ -40,18 +44,25 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
     setIsSubmitting(true);
 
     try {
+      // 직접 입력한 카테고리 이름이 목록에 없으면 자동 추가
+      const existingNames = new Set(categories.map((c) => c.name));
+      for (const ex of exercises) {
+        if (ex.name && !existingNames.has(ex.name)) {
+          await createCategory(ex.name);
+          existingNames.add(ex.name);
+        }
+      }
+
       const data: WorkoutCreateRequest = {
         workout_date: workoutDate,
         start_time: startTime + ":00",
         end_time: endTime + ":00",
         exercises: exercises.map((ex) => ({
           name: ex.name,
-          sets: ex.sets,
-          metrics: {
-            weight_kg: ex.metricType === "weight" ? ex.weight_kg : undefined,
-            duration_minutes:
-              ex.metricType === "time" ? ex.duration_minutes : undefined,
-          },
+          sets: ex.sets.map((s) => ({
+            weight_kg: s.weight_kg,
+            reps: s.reps,
+          })),
         })),
       };
 
@@ -91,17 +102,29 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">운동 목록</h3>
+          <h3 className="text-lg font-semibold">
+            운동 목록{" "}
+            <span className="text-sm font-normal text-gray-500">
+              (선택 사항)
+            </span>
+          </h3>
           <Button type="button" onClick={addExercise} size="sm">
             <Plus size={16} className="mr-1" />
             운동 추가
           </Button>
         </div>
 
+        {exercises.length === 0 && (
+          <p className="text-sm text-gray-400 text-center py-4">
+            운동을 추가하거나 빈 세션으로 저장할 수 있습니다.
+          </p>
+        )}
+
         {exercises.map((exercise, index) => (
           <ExerciseInput
             key={index}
             exercise={exercise}
+            categories={categories}
             onChange={(ex) => updateExercise(index, ex)}
             onRemove={() => removeExercise(index)}
           />

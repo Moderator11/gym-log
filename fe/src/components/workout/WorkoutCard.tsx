@@ -36,10 +36,9 @@ export const WorkoutCard = ({ workout }: WorkoutCardProps) => {
             <div className="space-y-1">
               {workout.exercises.slice(0, 3).map((exercise, idx) => (
                 <div key={idx} className="text-sm text-gray-600">
-                  • {exercise.name} ({exercise.sets}세트
-                  {exercise.weight_kg && `, ${exercise.weight_kg}kg`}
-                  {exercise.duration_minutes &&
-                    `, ${exercise.duration_minutes}분`}
+                  • {exercise.name} ({exercise.sets.length}세트
+                  {exercise.sets.length > 0 &&
+                    ` / ${exercise.sets[0].weight_kg}kg × ${exercise.sets[0].reps}회`}
                   )
                 </div>
               ))}

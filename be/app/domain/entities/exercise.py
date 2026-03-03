@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from typing import Optional
-from app.domain.value_objects.exercise_metrics import ExerciseMetrics
+from dataclasses import dataclass, field
+from typing import Optional, List
+from app.domain.value_objects.exercise_set import ExerciseSet
 
 
 @dataclass
@@ -9,8 +9,7 @@ class Exercise:
     id: Optional[int]
     workout_session_id: Optional[int]
     name: str
-    sets: int
-    metrics: ExerciseMetrics  # 무게 또는 시간
-    
+    sets: List[ExerciseSet] = field(default_factory=list)
+
     def __str__(self):
-        return f"{self.name} - {self.sets}세트 ({self.metrics})"
+        return f"{self.name} - {len(self.sets)}세트"

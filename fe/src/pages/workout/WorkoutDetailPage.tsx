@@ -105,26 +105,37 @@ export const WorkoutDetailPage = () => {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">운동 목록</h2>
-          <div className="space-y-3">
-            {workout.exercises.map((exercise, idx) => (
-              <div
-                key={idx}
-                className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-lg">{exercise.name}</h3>
-                    <p className="text-gray-600 mt-1">
-                      {exercise.sets}세트
-                      {exercise.weight_kg && ` × ${exercise.weight_kg}kg`}
-                      {exercise.duration_minutes &&
-                        ` × ${exercise.duration_minutes}분`}
-                    </p>
+          {workout.exercises.length === 0 ? (
+            <p className="text-gray-400 text-sm">등록된 운동이 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {workout.exercises.map((exercise, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                >
+                  <h3 className="font-semibold text-lg mb-2">
+                    {exercise.name}
+                  </h3>
+                  <div className="space-y-1">
+                    {exercise.sets.map((set, sIdx) => (
+                      <div
+                        key={sIdx}
+                        className="flex items-center gap-3 text-sm text-gray-600"
+                      >
+                        <span className="w-12 text-gray-400">
+                          {set.set_number}세트
+                        </span>
+                        <span className="font-medium">{set.weight_kg}kg</span>
+                        <span className="text-gray-400">×</span>
+                        <span className="font-medium">{set.reps}회</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </Card>
 

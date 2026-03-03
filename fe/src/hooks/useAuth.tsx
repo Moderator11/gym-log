@@ -2,35 +2,49 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
+
   ReactNode,
 } from "react";
 import { authApi } from "@/api/auth.api";
 import { AuthContextType, User } from "@/types/auth.types";
 
+const AUTH_TOKEN_KEY = "auth_token";
+const AUTH_USER_KEY = "auth_user";
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem(AUTH_USER_KEY);
+    return stored ? (JSON.parse(stored) as User) : null;
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  });
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
+  const persistAuth = (accessToken: string, userData: User) => {
+    localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
+    setToken(accessToken);
+    setUser(userData);
+  };
+
+  const clearAuth = () => {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    setToken(null);
+    setUser(null);
+  };
 
   const login = async (username: string, password: string) => {
     try {
       const response = await authApi.login({ username, password });
-      const { access_token } = response;
-
-      localStorage.setItem("token", access_token);
-      setToken(access_token);
-
-      // 실제로는 사용자 정보를 가져오는 API가 필요하지만, 여기서는 간단히 처리
-      setUser({ id: 0, username, created_at: new Date().toISOString() });
+      const userData: User = {
+        id: 0,
+        username,
+        created_at: new Date().toISOString(),
+      };
+      persistAuth(response.access_token, userData);
     } catch (error) {
       throw new Error("로그인에 실패했습니다");
     }
@@ -38,8 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (username: string, password: string) => {
     try {
-      const user = await authApi.register({ username, password });
-      console.log(user);
+      await authApi.register({ username, password });
       // 회원가입 후 자동 로그인
       await login(username, password);
     } catch (error) {
@@ -48,9 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
+    clearAuth();
   };
 
   const value: AuthContextType = {

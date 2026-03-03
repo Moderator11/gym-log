@@ -23,11 +23,6 @@ export const RegisterPage = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError("비밀번호는 최소 6자 이상이어야 합니다.");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -57,8 +52,8 @@ export const RegisterPage = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="사용자명을 입력하세요 (최소 3자)"
-            minLength={3}
+            placeholder="사용자명을 입력하세요"
+            minLength={1}
             required
           />
 
@@ -67,8 +62,8 @@ export const RegisterPage = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호를 입력하세요 (최소 6자)"
-            minLength={6}
+            placeholder="비밀번호를 입력하세요"
+            minLength={1}
             required
           />
 

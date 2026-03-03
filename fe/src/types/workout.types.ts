@@ -1,14 +1,13 @@
-export interface ExerciseMetrics {
-  weight_kg?: number;
-  duration_minutes?: number;
+export interface ExerciseSet {
+  set_number: number;
+  weight_kg: number;
+  reps: number;
 }
 
 export interface Exercise {
   id?: number;
   name: string;
-  sets: number;
-  weight_kg?: number;
-  duration_minutes?: number;
+  sets: ExerciseSet[];
 }
 
 export interface WorkoutSession {
@@ -22,14 +21,18 @@ export interface WorkoutSession {
   created_at: string;
 }
 
+export interface ExerciseCategory {
+  id: number;
+  name: string;
+}
+
 export interface WorkoutCreateRequest {
   workout_date: string;
   start_time: string;
   end_time: string;
   exercises: {
     name: string;
-    sets: number;
-    metrics: ExerciseMetrics;
+    sets: { weight_kg: number; reps: number }[];
   }[];
 }
 
@@ -39,7 +42,6 @@ export interface WorkoutUpdateRequest {
   end_time?: string;
   exercises?: {
     name: string;
-    sets: number;
-    metrics: ExerciseMetrics;
+    sets: { weight_kg: number; reps: number }[];
   }[];
 }

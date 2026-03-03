@@ -5,7 +5,8 @@ from app.application.dtos.workout_dto import (
     WorkoutSessionCreateRequest,
     WorkoutSessionUpdateRequest,
     WorkoutSessionResponse,
-    ExerciseResponse
+    ExerciseResponse,
+    ExerciseSetResponse
 )
 from app.presentation.dependencies import get_workout_service, get_current_user_id
 
@@ -96,13 +97,18 @@ def _to_response(session) -> WorkoutSessionResponse:
         ExerciseResponse(
             id=ex.id,
             name=ex.name,
-            sets=ex.sets,
-            weight_kg=ex.metrics.weight_kg,
-            duration_minutes=ex.metrics.duration_minutes
+            sets=[
+                ExerciseSetResponse(
+                    set_number=s.set_number,
+                    weight_kg=s.weight_kg,
+                    reps=s.reps
+                )
+                for s in ex.sets
+            ]
         )
         for ex in session.exercises
     ]
-    
+
     return WorkoutSessionResponse(
         id=session.id,
         user_id=session.user_id,
