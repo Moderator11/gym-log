@@ -9,6 +9,7 @@ import { CategoryPage } from "@/pages/category/CategoryPage";
 import { FriendsPage } from "@/pages/friends/FriendsPage";
 import { FriendWorkoutsPage } from "@/pages/friends/FriendWorkoutsPage";
 import { StatsPage } from "@/pages/stats/StatsPage";
+import { HealthPage } from "@/pages/health/HealthPage";
 
 export const AppRoutes = () => {
   return (
@@ -55,6 +56,14 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <FriendWorkoutsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/health"
+            element={
+              <ProtectedRoute>
+                <HealthPage />
               </ProtectedRoute>
             }
           />

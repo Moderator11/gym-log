@@ -20,10 +20,11 @@ def register(
 ):
     """회원가입"""
     try:
-        user = auth_service.register_user(request.username, request.password)
+        user = auth_service.register_user(request.username, request.password, request.display_name)
         return UserResponse(
             id=user.id,
             username=user.username,
+            display_name=user.display_name or user.username,
             created_at=user.created_at
         )
     except ValueError as e:
@@ -65,7 +66,8 @@ def get_me(
         )
     return UserSettingsResponse(
         sharing_enabled=user.sharing_enabled,
-        username=user.username
+        username=user.username,
+        display_name=user.display_name or user.username
     )
 
 
@@ -80,7 +82,8 @@ def update_settings(
         user = auth_service.update_sharing(user_id, request.sharing_enabled)
         return UserSettingsResponse(
             sharing_enabled=user.sharing_enabled,
-            username=user.username
+            username=user.username,
+            display_name=user.display_name or user.username
         )
     except ValueError as e:
         raise HTTPException(

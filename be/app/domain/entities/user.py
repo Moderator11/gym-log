@@ -11,6 +11,7 @@ class User:
     hashed_password: str
     created_at: datetime
     sharing_enabled: bool = False
+    display_name: Optional[str] = None  # 사용자명(표시용), None이면 username 사용
 
     def __post_init__(self):
         if self.created_at is None:

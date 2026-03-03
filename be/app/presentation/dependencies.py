@@ -6,11 +6,14 @@ from app.infrastructure.repositories.user_repository_impl import UserRepositoryI
 from app.infrastructure.repositories.workout_repository_impl import WorkoutRepositoryImpl
 from app.infrastructure.repositories.category_repository_impl import CategoryRepositoryImpl
 from app.infrastructure.repositories.friendship_repository_impl import FriendshipRepositoryImpl
+from app.infrastructure.repositories.health_metric_repository_impl import HealthMetricRepositoryImpl
+from app.infrastructure.repositories.health_record_repository_impl import HealthRecordRepositoryImpl
 from app.application.services.auth_service import AuthService
 from app.application.services.workout_service import WorkoutService
 from app.application.services.category_service import CategoryService
 from app.application.services.friendship_service import FriendshipService
 from app.application.services.stats_service import StatsService
+from app.application.services.health_service import HealthService
 
 security = HTTPBearer()
 
@@ -86,3 +89,17 @@ def get_current_user_id(
         )
 
     return user_id
+
+def get_health_metric_repository(db: Session = Depends(get_db)) -> HealthMetricRepositoryImpl:
+    return HealthMetricRepositoryImpl(db)
+
+
+def get_health_record_repository(db: Session = Depends(get_db)) -> HealthRecordRepositoryImpl:
+    return HealthRecordRepositoryImpl(db)
+
+
+def get_health_service(
+    metric_repo: HealthMetricRepositoryImpl = Depends(get_health_metric_repository),
+    record_repo: HealthRecordRepositoryImpl = Depends(get_health_record_repository),
+) -> HealthService:
+    return HealthService(metric_repo, record_repo)

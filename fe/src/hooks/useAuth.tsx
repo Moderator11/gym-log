@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userData: User = {
         id: 0,
         username,
+        display_name: username,
         created_at: new Date().toISOString(),
       };
       persistAuth(response.access_token, userData);
@@ -50,9 +51,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (username: string, password: string) => {
+  const register = async (username: string, display_name: string, password: string) => {
     try {
-      await authApi.register({ username, password });
+      await authApi.register({ username, display_name, password });
       // 회원가입 후 자동 로그인
       await login(username, password);
     } catch (error) {

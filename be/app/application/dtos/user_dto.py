@@ -5,6 +5,7 @@ from datetime import datetime
 class UserCreateRequest(BaseModel):
     """회원가입 요청"""
     username: str = Field(..., min_length=1, max_length=50)
+    display_name: str = Field(..., min_length=1, max_length=50)
     password: str = Field(..., min_length=1)
 
 
@@ -18,6 +19,7 @@ class UserResponse(BaseModel):
     """사용자 응답"""
     id: int
     username: str
+    display_name: str
     created_at: datetime
 
 
@@ -36,3 +38,4 @@ class UserSettingsResponse(BaseModel):
     """사용자 설정 응답"""
     sharing_enabled: bool
     username: str
+    display_name: str

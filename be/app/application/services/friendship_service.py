@@ -28,7 +28,7 @@ class FriendshipService:
                 else:
                     status = "pending_received"
 
-        return [{"id": user.id, "username": user.username, "friendship_status": status}]
+        return [{"id": user.id, "username": user.username, "display_name": user.display_name or user.username, "friendship_status": status}]
 
     def send_request(self, requester_id: int, addressee_username: str) -> Friendship:
         """친구 요청 보내기"""
@@ -73,6 +73,7 @@ class FriendshipService:
                     "id": friend.id,
                     "friendship_id": f.id,
                     "username": friend.username,
+                    "display_name": friend.display_name or friend.username,
                     "sharing_enabled": friend.sharing_enabled,
                 })
         return result
@@ -116,4 +117,4 @@ class FriendshipService:
             exclude_ids.add(f.addressee_id)
 
         users = self.user_repository.find_suggestions(list(exclude_ids), limit)
-        return [{"id": u.id, "username": u.username} for u in users]
+        return [{"id": u.id, "username": u.username, "display_name": u.display_name or u.username} for u in users]

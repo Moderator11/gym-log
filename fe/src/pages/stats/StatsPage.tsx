@@ -1,16 +1,28 @@
 import { useState } from "react";
 import { useStatsComparison, usePeriodStats } from "@/hooks/useStats";
+import { useHealthStats } from "@/hooks/useHealth";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export const StatsPage = () => {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
   const comparisonQuery = useStatsComparison();
   const periodStatsQuery = usePeriodStats(period);
+  const healthStatsQuery = useHealthStats();
 
   const comparison = comparisonQuery.data;
   const periodStats = periodStatsQuery.data || [];
+  const healthSeries = healthStatsQuery.data || [];
 
   const getPeriodLabel = () => {
     if (period === "daily") return "지난 7일";
@@ -123,6 +135,42 @@ export const StatsPage = () => {
           </div>
         )}
       </Card>
+
+      {/* 건강 지표 추이 */}
+      {healthSeries.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">건강 지표 추이</h2>
+          {healthSeries.map((series) => (
+            <Card key={series.metric_id}>
+              <h3 className="font-semibold text-gray-800 mb-4">
+                {series.metric_name}
+                <span className="ml-2 text-sm font-normal text-gray-400">({series.metric_unit})</span>
+              </h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={series.data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value: string | number | undefined) => [
+                      value != null ? `${value} ${series.metric_unit}` : "-",
+                      series.metric_name,
+                    ]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#6366f1"
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: "#6366f1" }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -9,6 +9,7 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,10 +27,10 @@ export const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      await register(username, password);
+      await register(username, displayName, password);
       navigate("/workouts");
     } catch (err) {
-      setError("회원가입에 실패했습니다. 다시 시도해주세요.");
+      setError("회원가입에 실패했습니다. 이미 사용 중인 아이디일 수 있습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -48,11 +49,21 @@ export const RegisterPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="사용자명"
+            label="아이디 (로그인·친구 검색용)"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="사용자명을 입력하세요"
+            placeholder="영문·숫자로 입력하세요"
+            minLength={1}
+            required
+          />
+
+          <Input
+            label="사용자명 (표시될 이름)"
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="표시될 이름을 입력하세요"
             minLength={1}
             required
           />

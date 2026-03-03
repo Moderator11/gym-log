@@ -125,7 +125,10 @@ export const FriendsPage = () => {
           <div className="space-y-2">
             {suggestions.map((suggestion) => (
               <div key={suggestion.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <p className="font-medium text-gray-900">{suggestion.username}</p>
+                <div>
+                  <p className="font-medium text-gray-900">{suggestion.display_name}</p>
+                  <p className="text-xs text-gray-400">@{suggestion.username}</p>
+                </div>
                 <Button
                   size="sm"
                   isLoading={sendingRequest === suggestion.id}
@@ -156,7 +159,7 @@ export const FriendsPage = () => {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="사용자명으로 검색…"
+            placeholder="아이디로 검색…"
             className="flex-1"
           />
           <Button type="submit" isLoading={searching}>
@@ -170,7 +173,7 @@ export const FriendsPage = () => {
             {searchResults.map((result) => (
               <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-900">{result.username}</p>
+                  <p className="font-medium text-gray-900">{result.display_name}<span className="text-xs text-gray-400 font-normal ml-1">({result.username})</span></p>
                   <p className="text-xs text-gray-500">
                     {result.friendship_status === "none" && "친구 아님"}
                     {result.friendship_status === "pending_sent" && "요청 대기 중"}
@@ -233,7 +236,7 @@ export const FriendsPage = () => {
             {friends.map((friend) => (
               <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="flex-1 cursor-pointer">
-                  <p className="font-medium text-gray-900">{friend.username}</p>
+                  <p className="font-medium text-gray-900">{friend.display_name}<span className="text-xs text-gray-400 font-normal ml-1">({friend.username})</span></p>
                   {friend.sharing_enabled ? (
                     <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
                       <Share2 size={12} />

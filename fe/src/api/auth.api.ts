@@ -8,6 +8,7 @@ import {
 
 export interface UserSettings {
   username: string;
+  display_name: string;
   sharing_enabled: boolean;
 }
 

@@ -16,6 +16,7 @@ class FriendInfo(BaseModel):
     id: int
     friendship_id: int
     username: str
+    display_name: str
     sharing_enabled: bool
 
 
@@ -30,6 +31,7 @@ class UserSearchResult(BaseModel):
     """사용자 검색 결과"""
     id: int
     username: str
+    display_name: str
     friendship_status: str  # "none" | "pending_sent" | "pending_received" | "accepted"
 
 
@@ -37,3 +39,4 @@ class UserSuggestion(BaseModel):
     """친구 추천 결과"""
     id: int
     username: str
+    display_name: str

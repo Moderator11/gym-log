@@ -10,6 +10,7 @@ class UserModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
+    display_name = Column(String, nullable=True)  # 사용자명(표시용), NULL이면 username 사용
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     sharing_enabled = Column(Boolean, nullable=False, server_default="0")
@@ -113,3 +114,49 @@ class FriendshipModel(Base):
 
     requester = relationship("UserModel", foreign_keys=[requester_id])
     addressee = relationship("UserModel", foreign_keys=[addressee_id])
+
+class HealthMetricModel(Base):
+    """건강 지표 테이블 (사용자 정의, e.g. 체중/kg)"""
+    __tablename__ = "health_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    name = Column(String, nullable=False)
+    unit = Column(String, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_metric_user_name"),
+    )
+
+    user = relationship("UserModel")
+    entries = relationship("HealthRecordEntryModel", back_populates="metric")
+
+
+class HealthRecordModel(Base):
+    """건강 기록 테이블"""
+    __tablename__ = "health_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    record_date = Column(String, nullable=False)  # YYYY-MM-DD
+    is_shared = Column(Boolean, nullable=False, server_default="0")
+
+    user = relationship("UserModel")
+    entries = relationship(
+        "HealthRecordEntryModel",
+        back_populates="record",
+        cascade="all, delete-orphan",
+    )
+
+
+class HealthRecordEntryModel(Base):
+    """건강 기록 항목 테이블 (지표 하나의 값)"""
+    __tablename__ = "health_record_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    health_record_id = Column(Integer, ForeignKey("health_records.id"), nullable=False)
+    metric_id = Column(Integer, ForeignKey("health_metrics.id"), nullable=False)
+    value = Column(Float, nullable=True)  # 비어 있을 수 있음
+
+    record = relationship("HealthRecordModel", back_populates="entries")
+    metric = relationship("HealthMetricModel", back_populates="entries")

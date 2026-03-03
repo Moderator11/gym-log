@@ -15,12 +15,12 @@ class AuthService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
     
-    def register_user(self, username: str, password: str) -> User:
+    def register_user(self, username: str, password: str, display_name: Optional[str] = None) -> User:
         """사용자 등록"""
         # 기존 사용자 확인
         existing_user = self.user_repository.find_by_username(username)
         if existing_user:
-            raise ValueError("이미 존재하는 사용자명입니다")
+            raise ValueError("이미 사용 중인 아이디입니다")
         
         # 비밀번호 해시화
         hashed_password = pwd_context.hash(password)
@@ -29,6 +29,7 @@ class AuthService:
         user = User(
             id=None,
             username=username,
+            display_name=display_name if display_name else username,
             hashed_password=hashed_password,
             created_at=datetime.utcnow()
         )
