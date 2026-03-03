@@ -26,7 +26,7 @@ export const Navbar = () => {
             className="flex items-center gap-2 text-lg font-bold text-primary-600"
           >
             <Dumbbell size={24} />
-            <span>운동 기록</span>
+            <span>짐로그</span>
           </Link>
 
           {/* 데스크톱 메뉴 */}
