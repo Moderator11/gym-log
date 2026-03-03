@@ -30,6 +30,27 @@ class ExerciseCategoryModel(Base):
     )
 
     user = relationship("UserModel", back_populates="exercise_categories")
+    tags = relationship(
+        "CategoryTagModel",
+        back_populates="category",
+        cascade="all, delete-orphan",
+        order_by="CategoryTagModel.name",
+    )
+
+
+class CategoryTagModel(Base):
+    """카테고리 태그 테이블 (향후 공유/친구 시스템에서 공개 태그 필터링에 활용)"""
+    __tablename__ = "category_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(Integer, ForeignKey("exercise_categories.id"), nullable=False)
+    name = Column(String, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("category_id", "name", name="uq_tag_category_name"),
+    )
+
+    category = relationship("ExerciseCategoryModel", back_populates="tags")
 
 
 class WorkoutSessionModel(Base):

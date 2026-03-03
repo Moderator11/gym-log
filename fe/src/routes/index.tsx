@@ -5,6 +5,7 @@ import { LoginPage } from "@/pages/auth/LoginPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { WorkoutListPage } from "@/pages/workout/WorkoutListPage";
 import { WorkoutDetailPage } from "@/pages/workout/WorkoutDetailPage";
+import { CategoryPage } from "@/pages/category/CategoryPage";
 
 export const AppRoutes = () => {
   return (
@@ -27,6 +28,14 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <WorkoutDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <CategoryPage />
               </ProtectedRoute>
             }
           />

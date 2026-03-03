@@ -13,6 +13,7 @@ import {
   Trash2,
   ArrowLeft,
 } from "lucide-react";
+import { utcToLocalTime, utcToLocalDate } from "@/utils/time.util";
 
 export const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +36,7 @@ export const WorkoutDetailPage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
       </div>
     );
   }
@@ -48,14 +49,14 @@ export const WorkoutDetailPage = () => {
     );
   }
 
+  const localDate = utcToLocalDate(workout.workout_date, workout.start_time);
+  const localStart = utcToLocalTime(workout.workout_date, workout.start_time);
+  const localEnd = utcToLocalTime(workout.workout_date, workout.end_time);
+
   return (
-    <div>
-      <div className="mb-6">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => navigate("/workouts")}
-        >
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <Button variant="secondary" size="sm" onClick={() => navigate("/workouts")}>
           <ArrowLeft size={16} className="mr-1" />
           목록으로
         </Button>
@@ -63,10 +64,10 @@ export const WorkoutDetailPage = () => {
 
       <Card>
         <div className="flex justify-between items-start mb-6">
-          <h1 className="text-2xl font-bold">운동 상세 정보</h1>
+          <h1 className="text-xl font-bold">운동 상세</h1>
           <div className="flex gap-2">
             <Button size="sm" onClick={() => setIsEditModalOpen(true)}>
-              <Edit size={16} className="mr-1" />
+              <Edit size={15} className="mr-1" />
               수정
             </Button>
             <Button
@@ -74,64 +75,68 @@ export const WorkoutDetailPage = () => {
               size="sm"
               onClick={() => setIsDeleteModalOpen(true)}
             >
-              <Trash2 size={16} className="mr-1" />
+              <Trash2 size={15} className="mr-1" />
               삭제
             </Button>
           </div>
         </div>
 
-        <div className="space-y-4 mb-6">
-          <div className="flex items-center gap-3">
-            <Calendar className="text-primary-600" size={20} />
-            <span className="font-medium">날짜:</span>
-            <span>{workout.workout_date}</span>
+        {/* 세션 메타 정보 */}
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center gap-3 text-sm">
+            <Calendar className="text-primary-600 flex-shrink-0" size={18} />
+            <span className="font-medium text-gray-500 w-12">날짜</span>
+            <span>{localDate}</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Clock className="text-primary-600" size={20} />
-            <span className="font-medium">시간:</span>
+          <div className="flex items-center gap-3 text-sm">
+            <Clock className="text-primary-600 flex-shrink-0" size={18} />
+            <span className="font-medium text-gray-500 w-12">시간</span>
             <span>
-              {workout.start_time} - {workout.end_time} (
-              {workout.duration_minutes}분)
+              {localStart} – {localEnd}{" "}
+              <span className="text-gray-400">({workout.duration_minutes}분)</span>
             </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Dumbbell className="text-primary-600" size={20} />
-            <span className="font-medium">총 운동 수:</span>
+          <div className="flex items-center gap-3 text-sm">
+            <Dumbbell className="text-primary-600 flex-shrink-0" size={18} />
+            <span className="font-medium text-gray-500 w-12">운동</span>
             <span>{workout.exercises.length}개</span>
           </div>
         </div>
 
+        {/* 운동 목록 */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">운동 목록</h2>
+          <h2 className="text-base font-semibold mb-3">운동 목록</h2>
           {workout.exercises.length === 0 ? (
-            <p className="text-gray-400 text-sm">등록된 운동이 없습니다.</p>
+            <p className="text-sm text-gray-400">등록된 운동이 없습니다.</p>
           ) : (
             <div className="space-y-3">
               {workout.exercises.map((exercise, idx) => (
                 <div
                   key={idx}
-                  className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                  className="bg-gray-50 rounded-xl p-4 border border-gray-100"
                 >
-                  <h3 className="font-semibold text-lg mb-2">
+                  <h3 className="font-semibold text-gray-900 mb-2">
                     {exercise.name}
                   </h3>
-                  <div className="space-y-1">
-                    {exercise.sets.map((set, sIdx) => (
-                      <div
-                        key={sIdx}
-                        className="flex items-center gap-3 text-sm text-gray-600"
-                      >
-                        <span className="w-12 text-gray-400">
-                          {set.set_number}세트
-                        </span>
-                        <span className="font-medium">{set.weight_kg}kg</span>
-                        <span className="text-gray-400">×</span>
-                        <span className="font-medium">{set.reps}회</span>
-                      </div>
-                    ))}
-                  </div>
+                  {exercise.sets.length === 0 ? (
+                    <p className="text-xs text-gray-400">세트 기록 없음</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {exercise.sets.map((set) => (
+                        <div
+                          key={set.set_number}
+                          className="flex items-center gap-3 text-sm"
+                        >
+                          <span className="text-gray-400 w-12 text-xs">
+                            {set.set_number}세트
+                          </span>
+                          <span className="font-medium">{set.weight_kg} kg</span>
+                          <span className="text-gray-300">×</span>
+                          <span className="font-medium">{set.reps} 회</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -145,6 +150,7 @@ export const WorkoutDetailPage = () => {
         title="운동 기록 수정"
       >
         <WorkoutForm
+          initialWorkout={workout}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditModalOpen(false)}
         />
@@ -156,12 +162,11 @@ export const WorkoutDetailPage = () => {
         title="운동 기록 삭제"
       >
         <div className="space-y-4">
-          <p>정말로 이 운동 기록을 삭제하시겠습니까?</p>
+          <p className="text-sm text-gray-600">
+            정말로 이 운동 기록을 삭제하시겠습니까?
+          </p>
           <div className="flex gap-3 justify-end">
-            <Button
-              variant="secondary"
-              onClick={() => setIsDeleteModalOpen(false)}
-            >
+            <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
               취소
             </Button>
             <Button variant="danger" onClick={handleDelete}>

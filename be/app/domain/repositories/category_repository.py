@@ -22,6 +22,11 @@ class CategoryRepository(ABC):
         pass
 
     @abstractmethod
+    def update(self, category: ExerciseCategory) -> ExerciseCategory:
+        """카테고리 이름·태그 수정"""
+        pass
+
+    @abstractmethod
     def delete(self, category_id: int) -> bool:
         """카테고리 삭제"""
         pass

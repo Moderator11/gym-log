@@ -2,31 +2,54 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ExerciseInput, ExerciseInputData } from "./ExerciseInput";
-import { Plus } from "lucide-react";
-import { WorkoutCreateRequest } from "@/types/workout.types";
+import { Plus, Clock } from "lucide-react";
+import { WorkoutCreateRequest, WorkoutSession } from "@/types/workout.types";
 import { useCategories } from "@/hooks/useCategories";
+import {
+  getTodayDate,
+  getCurrentLocalTime,
+  localToUtcTime,
+  utcToLocalDate,
+  utcToLocalTime,
+} from "@/utils/time.util";
 
 interface WorkoutFormProps {
   onSubmit: (data: WorkoutCreateRequest) => Promise<void>;
   onCancel: () => void;
+  /** 수정 모드일 때 기존 데이터를 전달합니다. */
+  initialWorkout?: WorkoutSession;
 }
 
-export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
+export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [workoutDate, setWorkoutDate] = useState(
-    new Date().toISOString().split("T")[0],
+  const [workoutDate, setWorkoutDate] = useState(() =>
+    initialWorkout
+      ? utcToLocalDate(initialWorkout.workout_date, initialWorkout.start_time)
+      : getTodayDate()
   );
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
-  const [exercises, setExercises] = useState<ExerciseInputData[]>([]);
+  const [startTime, setStartTime] = useState(() =>
+    initialWorkout
+      ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.start_time)
+      : getCurrentLocalTime()
+  );
+  const [endTime, setEndTime] = useState(() =>
+    initialWorkout
+      ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.end_time)
+      : getCurrentLocalTime()
+  );
+  const [exercises, setExercises] = useState<ExerciseInputData[]>(() =>
+    initialWorkout
+      ? initialWorkout.exercises.map((ex) => ({
+          name: ex.name,
+          sets: ex.sets.map((s) => ({ weight_kg: s.weight_kg, reps: s.reps })),
+        }))
+      : []
+  );
 
   const { categories, createCategory } = useCategories();
 
   const addExercise = () => {
-    setExercises([
-      ...exercises,
-      { name: "", sets: [{ weight_kg: 0, reps: 1 }] },
-    ]);
+    setExercises([...exercises, { name: "", sets: [] }]);
   };
 
   const removeExercise = (index: number) => {
@@ -34,35 +57,31 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
   };
 
   const updateExercise = (index: number, exercise: ExerciseInputData) => {
-    const newExercises = [...exercises];
-    newExercises[index] = exercise;
-    setExercises(newExercises);
+    const next = [...exercises];
+    next[index] = exercise;
+    setExercises(next);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      // 직접 입력한 카테고리 이름이 목록에 없으면 자동 추가
+      // 직접 입력한 이름이 카테고리 목록에 없으면 자동 추가
       const existingNames = new Set(categories.map((c) => c.name));
       for (const ex of exercises) {
         if (ex.name && !existingNames.has(ex.name)) {
-          await createCategory(ex.name);
+          await createCategory({ name: ex.name, tags: [] });
           existingNames.add(ex.name);
         }
       }
 
       const data: WorkoutCreateRequest = {
         workout_date: workoutDate,
-        start_time: startTime + ":00",
-        end_time: endTime + ":00",
+        start_time: localToUtcTime(workoutDate, startTime),
+        end_time: localToUtcTime(workoutDate, endTime),
         exercises: exercises.map((ex) => ({
           name: ex.name,
-          sets: ex.sets.map((s) => ({
-            weight_kg: s.weight_kg,
-            reps: s.reps,
-          })),
+          sets: ex.sets.map((s) => ({ weight_kg: s.weight_kg, reps: s.reps })),
         })),
       };
 
@@ -76,7 +95,8 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* 날짜 / 시간 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Input
           label="운동 날짜"
           type="date"
@@ -84,39 +104,70 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
           onChange={(e) => setWorkoutDate(e.target.value)}
           required
         />
-        <Input
-          label="시작 시간"
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          required
-        />
-        <Input
-          label="종료 시간"
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          required
-        />
+
+        {/* 시작 시간 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            시작 시간
+          </label>
+          <div className="flex gap-2">
+            <Input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setStartTime(getCurrentLocalTime())}
+              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 text-gray-600 transition-colors"
+              title="현재 시각으로 설정"
+            >
+              <Clock size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* 종료 시간 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            종료 시간
+          </label>
+          <div className="flex gap-2">
+            <Input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setEndTime(getCurrentLocalTime())}
+              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 text-gray-600 transition-colors"
+              title="현재 시각으로 설정"
+            >
+              <Clock size={14} />
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* 운동 목록 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-base font-semibold">
             운동 목록{" "}
-            <span className="text-sm font-normal text-gray-500">
-              (선택 사항)
-            </span>
+            <span className="text-sm font-normal text-gray-400">(선택)</span>
           </h3>
           <Button type="button" onClick={addExercise} size="sm">
-            <Plus size={16} className="mr-1" />
+            <Plus size={15} className="mr-1" />
             운동 추가
           </Button>
         </div>
 
         {exercises.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-4">
-            운동을 추가하거나 빈 세션으로 저장할 수 있습니다.
+          <p className="text-sm text-gray-400 text-center py-3">
+            빈 세션으로 저장하거나 운동을 추가하세요.
           </p>
         )}
 
@@ -131,7 +182,7 @@ export const WorkoutForm = ({ onSubmit, onCancel }: WorkoutFormProps) => {
         ))}
       </div>
 
-      <div className="flex gap-3 justify-end">
+      <div className="flex gap-3 justify-end pt-2">
         <Button type="button" variant="secondary" onClick={onCancel}>
           취소
         </Button>

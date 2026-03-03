@@ -19,7 +19,7 @@ class ExerciseSetResponse(BaseModel):
 class ExerciseRequest(BaseModel):
     """운동 항목 요청"""
     name: str = Field(..., min_length=1, max_length=100)
-    sets: List[ExerciseSetRequest] = Field(..., min_items=1)
+    sets: List[ExerciseSetRequest] = Field(default_factory=list)
 
 
 class ExerciseResponse(BaseModel):

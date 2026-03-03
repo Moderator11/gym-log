@@ -2,49 +2,57 @@ import { WorkoutSession } from "@/types/workout.types";
 import { Card } from "@/components/ui/Card";
 import { Calendar, Clock, Dumbbell } from "lucide-react";
 import { Link } from "react-router-dom";
+import { utcToLocalTime, utcToLocalDate } from "@/utils/time.util";
 
 interface WorkoutCardProps {
   workout: WorkoutSession;
 }
 
 export const WorkoutCard = ({ workout }: WorkoutCardProps) => {
+  const localDate = utcToLocalDate(workout.workout_date, workout.start_time);
+  const localStart = utcToLocalTime(workout.workout_date, workout.start_time);
+  const localEnd = utcToLocalTime(workout.workout_date, workout.end_time);
+
   return (
     <Link to={`/workouts/${workout.id}`}>
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+      <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 text-gray-600 mb-2">
-              <Calendar size={16} />
-              <span className="text-sm">{workout.workout_date}</span>
+              <Calendar size={15} />
+              <span className="text-sm">{localDate}</span>
             </div>
 
             <div className="flex items-center gap-2 text-gray-600 mb-3">
-              <Clock size={16} />
+              <Clock size={15} />
               <span className="text-sm">
-                {workout.start_time} - {workout.end_time} (
-                {workout.duration_minutes}분)
+                {localStart} – {localEnd}{" "}
+                <span className="text-gray-400">({workout.duration_minutes}분)</span>
               </span>
             </div>
 
-            <div className="flex items-center gap-2 mb-3">
-              <Dumbbell size={16} className="text-primary-600" />
-              <span className="font-medium">
+            <div className="flex items-center gap-2 mb-2">
+              <Dumbbell size={15} className="text-primary-600" />
+              <span className="text-sm font-medium">
                 {workout.exercises.length}개 운동
               </span>
             </div>
 
             <div className="space-y-1">
               {workout.exercises.slice(0, 3).map((exercise, idx) => (
-                <div key={idx} className="text-sm text-gray-600">
-                  • {exercise.name} ({exercise.sets.length}세트
-                  {exercise.sets.length > 0 &&
-                    ` / ${exercise.sets[0].weight_kg}kg × ${exercise.sets[0].reps}회`}
-                  )
+                <div key={idx} className="text-sm text-gray-500">
+                  · {exercise.name}{" "}
+                  {exercise.sets.length > 0 && (
+                    <span className="text-gray-400">
+                      ({exercise.sets.length}세트 /{" "}
+                      {exercise.sets[0].weight_kg}kg × {exercise.sets[0].reps}회)
+                    </span>
+                  )}
                 </div>
               ))}
               {workout.exercises.length > 3 && (
-                <div className="text-sm text-gray-500">
-                  + {workout.exercises.length - 3}개 더보기
+                <div className="text-xs text-gray-400">
+                  + {workout.exercises.length - 3}개 더
                 </div>
               )}
             </div>

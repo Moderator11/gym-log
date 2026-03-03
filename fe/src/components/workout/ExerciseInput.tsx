@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from "lucide-react";
 import { ExerciseCategory } from "@/types/workout.types";
 
 export interface SetInputData {
@@ -21,18 +20,59 @@ interface ExerciseInputProps {
   onRemove: () => void;
 }
 
+/* 숫자 +/- 조절 컴포넌트 */
+interface StepperProps {
+  label: string;
+  value: number;
+  step: number;
+  min: number;
+  onChange: (v: number) => void;
+}
+const Stepper = ({ label, value, step, min, onChange }: StepperProps) => {
+  const dec = () => onChange(Math.max(min, parseFloat((value - step).toFixed(2))));
+  const inc = () => onChange(parseFloat((value + step).toFixed(2)));
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <span className="text-xs text-gray-400">{label}</span>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={dec}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg text-gray-700 font-bold transition-colors touch-manipulation"
+        >
+          <Minus size={13} />
+        </button>
+        <input
+          type="number"
+          value={value}
+          min={min}
+          step={step}
+          onChange={(e) => onChange(parseFloat(e.target.value) || min)}
+          className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        />
+        <button
+          type="button"
+          onClick={inc}
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg text-gray-700 font-bold transition-colors touch-manipulation"
+        >
+          <Plus size={13} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const ExerciseInput = ({
   exercise,
   categories,
   onChange,
   onRemove,
 }: ExerciseInputProps) => {
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [showNewInput, setShowNewInput] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [collapsed, setCollapsed] = useState(true);
 
-  const handleNameChange = (name: string) => {
-    onChange({ ...exercise, name });
-  };
+  const handleNameChange = (name: string) => onChange({ ...exercise, name });
 
   const addSet = () => {
     const prev = exercise.sets[exercise.sets.length - 1];
@@ -40,57 +80,115 @@ export const ExerciseInput = ({
       ...exercise,
       sets: [
         ...exercise.sets,
-        { weight_kg: prev?.weight_kg ?? 0, reps: prev?.reps ?? 1 },
+        { weight_kg: prev?.weight_kg ?? 20, reps: prev?.reps ?? 10 },
       ],
     });
   };
 
   const removeSet = (idx: number) => {
-    onChange({
-      ...exercise,
-      sets: exercise.sets.filter((_, i) => i !== idx),
-    });
+    onChange({ ...exercise, sets: exercise.sets.filter((_, i) => i !== idx) });
   };
 
   const updateSet = (idx: number, field: keyof SetInputData, value: number) => {
-    const newSets = [...exercise.sets];
-    newSets[idx] = { ...newSets[idx], [field]: value };
-    onChange({ ...exercise, sets: newSets });
+    const next = [...exercise.sets];
+    next[idx] = { ...next[idx], [field]: value };
+    onChange({ ...exercise, sets: next });
   };
 
+  /* 접힌 상태 — 컴팩트 한 줄 */
+  if (collapsed) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 border border-indigo-200 rounded-xl">
+        {/* 이름 레이블 */}
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="flex-1 text-left min-w-0"
+        >
+          {exercise.name ? (
+            <span className="text-sm font-semibold text-indigo-800 truncate block">
+              {exercise.name}
+            </span>
+          ) : (
+            <span className="text-sm text-indigo-400">운동 선택…</span>
+          )}
+        </button>
+
+        {/* 세트 배지 */}
+        <span className="flex-shrink-0 text-xs text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full">
+          {exercise.sets.length > 0 ? `${exercise.sets.length}세트` : "세트 없음"}
+        </span>
+
+        {/* 펼치기 버튼 */}
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors flex-shrink-0"
+          title="펼치기"
+        >
+          <ChevronDown size={15} />
+        </button>
+
+        {/* 삭제 버튼 */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+          title="운동 삭제"
+        >
+          <Trash2 size={15} />
+        </button>
+      </div>
+    );
+  }
+
+  /* 펼친 상태 — 전체 편집 UI */
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-3">
-      {/* 운동 이름 선택 */}
-      <div className="flex gap-3 items-end">
+    <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+      {/* 헤더: 운동 이름 선택 + 접기 + 삭제 */}
+      <div className="flex gap-2 items-end p-3 sm:p-4">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">
             운동 이름
           </label>
-          {showNewCategory ? (
-            <Input
-              value={newCategoryName}
-              onChange={(e) => {
-                setNewCategoryName(e.target.value);
-                handleNameChange(e.target.value);
-              }}
-              placeholder="새 운동 이름 입력"
-              required
-            />
+          {showNewInput ? (
+            <div className="flex gap-2">
+              <input
+                autoFocus
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  handleNameChange(e.target.value);
+                }}
+                placeholder="운동 이름 직접 입력"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewInput(false);
+                  setNewName("");
+                  handleNameChange("");
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
+              >
+                목록
+              </button>
+            </div>
           ) : (
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
               value={exercise.name}
               onChange={(e) => {
                 if (e.target.value === "__new__") {
-                  setShowNewCategory(true);
+                  setShowNewInput(true);
                   handleNameChange("");
                 } else {
                   handleNameChange(e.target.value);
                 }
               }}
-              required
             >
-              <option value="">운동을 선택하세요</option>
+              <option value="">운동 선택…</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.name}>
                   {c.name}
@@ -100,82 +198,80 @@ export const ExerciseInput = ({
             </select>
           )}
         </div>
-        {showNewCategory && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              setShowNewCategory(false);
-              setNewCategoryName("");
-              handleNameChange("");
-            }}
-          >
-            목록에서 선택
-          </Button>
-        )}
-        <div className="flex items-end">
-          <Button type="button" variant="danger" size="sm" onClick={onRemove}>
-            <Trash2 size={16} />
-          </Button>
-        </div>
+
+        {/* 접기 버튼 */}
+        <button
+          type="button"
+          onClick={() => setCollapsed(true)}
+          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          title="접기"
+        >
+          <ChevronUp size={16} />
+        </button>
+
+        {/* 삭제 버튼 */}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+          title="운동 삭제"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
 
       {/* 세트 목록 */}
-      <div className="space-y-2">
+      <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">세트 기록</span>
+          <span className="text-xs font-medium text-gray-600">
+            세트 기록{" "}
+            <span className="text-gray-400 font-normal">({exercise.sets.length}세트)</span>
+          </span>
           <Button type="button" size="sm" onClick={addSet}>
-            <Plus size={14} className="mr-1" />
+            <Plus size={13} className="mr-1" />
             세트 추가
           </Button>
         </div>
 
         {exercise.sets.length === 0 && (
-          <p className="text-sm text-gray-400">세트를 추가해주세요</p>
+          <p className="text-xs text-gray-400 py-1">
+            세트 없이 저장하거나, 세트를 추가하세요.
+          </p>
         )}
 
         {exercise.sets.map((set, idx) => (
-          <div key={idx} className="flex gap-2 items-center bg-gray-50 rounded p-2">
-            <span className="text-sm text-gray-500 w-12">
+          <div
+            key={idx}
+            className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2"
+          >
+            <span className="text-xs text-gray-400 w-8 flex-shrink-0">
               {idx + 1}세트
             </span>
-            <div className="flex-1">
-              <Input
-                type="number"
-                min="0"
-                step="0.5"
-                value={set.weight_kg || ""}
-                onChange={(e) =>
-                  updateSet(idx, "weight_kg", parseFloat(e.target.value) || 0)
-                }
-                placeholder="kg"
-                required
+            <div className="flex items-center gap-3 flex-1 justify-center flex-wrap">
+              <Stepper
+                label="kg"
+                value={set.weight_kg}
+                step={0.5}
+                min={0}
+                onChange={(v) => updateSet(idx, "weight_kg", v)}
+              />
+              <span className="text-gray-300 text-lg self-end pb-1">×</span>
+              <Stepper
+                label="회"
+                value={set.reps}
+                step={1}
+                min={1}
+                onChange={(v) => updateSet(idx, "reps", v)}
               />
             </div>
-            <span className="text-sm text-gray-400">×</span>
-            <div className="flex-1">
-              <Input
-                type="number"
-                min="1"
-                value={set.reps || ""}
-                onChange={(e) =>
-                  updateSet(idx, "reps", parseInt(e.target.value) || 1)
-                }
-                placeholder="회"
-                required
-              />
-            </div>
-            {exercise.sets.length > 1 && (
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                onClick={() => removeSet(idx)}
-              >
-                <Trash2 size={14} />
-              </Button>
-            )}
+            <button
+              type="button"
+              onClick={() => removeSet(idx)}
+              className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+              title="세트 삭제"
+            >
+              <Trash2 size={13} />
+            </button>
           </div>
         ))}
       </div>

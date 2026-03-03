@@ -1,14 +1,24 @@
 import apiClient from "./client";
 import { ExerciseCategory } from "@/types/workout.types";
 
+export interface CategoryPayload {
+  name: string;
+  tags: string[];
+}
+
 export const categoryApi = {
   getAll: async (): Promise<ExerciseCategory[]> => {
     const response = await apiClient.get<ExerciseCategory[]>("/categories");
     return response.data;
   },
 
-  create: async (name: string): Promise<ExerciseCategory> => {
-    const response = await apiClient.post<ExerciseCategory>("/categories", { name });
+  create: async (payload: CategoryPayload): Promise<ExerciseCategory> => {
+    const response = await apiClient.post<ExerciseCategory>("/categories", payload);
+    return response.data;
+  },
+
+  update: async (id: number, payload: CategoryPayload): Promise<ExerciseCategory> => {
+    const response = await apiClient.put<ExerciseCategory>(`/categories/${id}`, payload);
     return response.data;
   },
 

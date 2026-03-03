@@ -23,8 +23,9 @@ export const useWorkouts = () => {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: WorkoutUpdateRequest }) =>
       workoutApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["workout", id] });
     },
   });
 
