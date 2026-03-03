@@ -10,6 +10,7 @@ export interface UserSettings {
   username: string;
   display_name: string;
   sharing_enabled: boolean;
+  health_sharing_enabled: boolean;
 }
 
 export const authApi = {
@@ -28,9 +29,10 @@ export const authApi = {
     return response.data;
   },
 
-  updateSettings: async (sharing_enabled: boolean): Promise<UserSettings> => {
+  updateSettings: async (sharing_enabled: boolean, health_sharing_enabled: boolean): Promise<UserSettings> => {
     const response = await apiClient.put<UserSettings>("/auth/users/me/settings", {
       sharing_enabled,
+      health_sharing_enabled,
     });
     return response.data;
   },

@@ -75,6 +75,7 @@ class FriendshipService:
                     "username": friend.username,
                     "display_name": friend.display_name or friend.username,
                     "sharing_enabled": friend.sharing_enabled,
+                    "health_sharing_enabled": friend.health_sharing_enabled,
                 })
         return result
 

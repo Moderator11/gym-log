@@ -15,7 +15,6 @@ export interface HealthRecordEntry {
 export interface HealthRecord {
   id: number;
   record_date: string;   // YYYY-MM-DD
-  is_shared: boolean;
   entries: HealthRecordEntry[];
 }
 
@@ -34,6 +33,5 @@ export interface HealthRecordEntryPayload {
 
 export interface HealthRecordPayload {
   record_date: string;
-  is_shared: boolean;
   entries: HealthRecordEntryPayload[];
 }

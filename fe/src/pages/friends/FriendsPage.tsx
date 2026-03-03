@@ -6,12 +6,12 @@ import { UserSearchResult } from "@/types/friend.types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Search, UserPlus, Check, X, Share2, EyeOff } from "lucide-react";
+import { Search, UserPlus, Check, X, Share2, EyeOff, Activity } from "lucide-react";
 
 export const FriendsPage = () => {
   const navigate = useNavigate();
   const { friends, pendingRequests, suggestions, sendRequest, respondToRequest, searchUsers } = useFriends();
-  const { settings, updateSharing, isUpdating } = useUserSettings();
+  const { settings, updateSharing, updateHealthSharing, isUpdating } = useUserSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -68,6 +68,15 @@ export const FriendsPage = () => {
     }
   };
 
+  const handleToggleHealthSharing = async () => {
+    if (!settings) return;
+    try {
+      await updateHealthSharing(!settings.health_sharing_enabled);
+    } catch (error) {
+      console.error("Failed to update health sharing:", error);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* 헤더 */}
@@ -112,6 +121,48 @@ export const FriendsPage = () => {
             <span
               className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                 settings?.sharing_enabled ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+        </div>
+      </Card>
+
+      {/* 내 건강 기록 공유 설정 */}
+      <Card>
+        <div className="flex items-center justify-between">
+          <div className="flex items-start gap-3">
+            <div
+              className={`mt-0.5 p-2 rounded-lg ${
+                settings?.health_sharing_enabled
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 text-gray-400"
+              }`}
+            >
+              <Activity size={18} />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800">내 건강 기록 공유</p>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {settings?.health_sharing_enabled
+                  ? "친구들이 내 건강 기록을 볼 수 있습니다"
+                  : "친구들에게 내 건강 기록이 숨겨져 있습니다"}
+              </p>
+            </div>
+          </div>
+
+          {/* 토글 스위치 */}
+          <button
+            type="button"
+            onClick={handleToggleHealthSharing}
+            disabled={isUpdating || !settings}
+            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              settings?.health_sharing_enabled ? "bg-blue-500" : "bg-gray-300"
+            }`}
+            title={settings?.health_sharing_enabled ? "건강 기록 공유 비활성화" : "건강 기록 공유 활성화"}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                settings?.health_sharing_enabled ? "translate-x-5" : "translate-x-0"
               }`}
             />
           </button>
@@ -235,7 +286,7 @@ export const FriendsPage = () => {
           <div className="space-y-2">
             {friends.map((friend) => (
               <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex-1 cursor-pointer">
+                <div className="flex-1">
                   <p className="font-medium text-gray-900">{friend.display_name}<span className="text-xs text-gray-400 font-normal ml-1">({friend.username})</span></p>
                   {friend.sharing_enabled ? (
                     <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
@@ -246,15 +297,27 @@ export const FriendsPage = () => {
                     <p className="text-xs text-gray-400 mt-0.5">운동 공유 비활성화</p>
                   )}
                 </div>
-                {friend.sharing_enabled && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => navigate(`/friends/${friend.id}/workouts`)}
-                  >
-                    운동 보기
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  {friend.sharing_enabled && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => navigate(`/friends/${friend.id}/workouts`)}
+                    >
+                      운동 보기
+                    </Button>
+                  )}
+                  {friend.health_sharing_enabled && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => navigate(`/friends/${friend.id}/health`)}
+                    >
+                      <Activity size={13} className="mr-1" />
+                      건강 보기
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

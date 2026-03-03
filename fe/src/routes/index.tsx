@@ -8,6 +8,7 @@ import { WorkoutDetailPage } from "@/pages/workout/WorkoutDetailPage";
 import { CategoryPage } from "@/pages/category/CategoryPage";
 import { FriendsPage } from "@/pages/friends/FriendsPage";
 import { FriendWorkoutsPage } from "@/pages/friends/FriendWorkoutsPage";
+import { FriendHealthPage } from "@/pages/friends/FriendHealthPage";
 import { StatsPage } from "@/pages/stats/StatsPage";
 import { HealthPage } from "@/pages/health/HealthPage";
 
@@ -56,6 +57,14 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <FriendWorkoutsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/friends/:id/health"
+            element={
+              <ProtectedRoute>
+                <FriendHealthPage />
               </ProtectedRoute>
             }
           />

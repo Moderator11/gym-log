@@ -16,5 +16,4 @@ class HealthRecord:
     id: Optional[int]
     user_id: int
     record_date: str   # YYYY-MM-DD
-    is_shared: bool
     entries: List[HealthRecordEntry] = field(default_factory=list)

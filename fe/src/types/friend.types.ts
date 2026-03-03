@@ -4,6 +4,7 @@ export interface FriendInfo {
   username: string;
   display_name: string;
   sharing_enabled: boolean;
+  health_sharing_enabled: boolean;
 }
 
 export interface PendingRequest {

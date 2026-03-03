@@ -46,14 +46,12 @@ class HealthService:
         self,
         user_id: int,
         record_date: str,
-        is_shared: bool,
         entries: List[dict],
     ) -> HealthRecord:
         record = HealthRecord(
             id=None,
             user_id=user_id,
             record_date=record_date,
-            is_shared=is_shared,
             entries=[
                 HealthRecordEntry(id=None, metric_id=e["metric_id"], value=e.get("value"))
                 for e in entries
@@ -66,7 +64,6 @@ class HealthService:
         user_id: int,
         record_id: int,
         record_date: str,
-        is_shared: bool,
         entries: List[dict],
     ) -> HealthRecord:
         existing = self.record_repo.find_by_id(record_id)
@@ -77,7 +74,6 @@ class HealthService:
             id=record_id,
             user_id=user_id,
             record_date=record_date,
-            is_shared=is_shared,
             entries=[
                 HealthRecordEntry(id=None, metric_id=e["metric_id"], value=e.get("value"))
                 for e in entries
@@ -123,13 +119,13 @@ class HealthService:
     # ── 친구 공유 ─────────────────────────────────────────────────────────
 
     def get_friend_records(self, friend_id: int) -> List[HealthRecord]:
-        """친구의 공유된 기록만 반환"""
-        return self.record_repo.find_shared_by_user(friend_id)
+        """친구의 모든 기록 반환 (공유 여부는 라우터에서 확인)"""
+        return self.record_repo.find_by_user(friend_id)
 
     def get_friend_stats(self, friend_id: int) -> List[dict]:
         """친구의 공유된 기록 기반 통계"""
         metrics = {m.id: m for m in self.metric_repo.find_by_user(friend_id)}
-        records = self.record_repo.find_shared_by_user(friend_id)
+        records = self.record_repo.find_by_user(friend_id)
 
         series: dict[int, list] = {mid: [] for mid in metrics}
         for rec in sorted(records, key=lambda r: r.record_date):

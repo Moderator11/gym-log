@@ -32,10 +32,12 @@ class TokenResponse(BaseModel):
 class UserSettingsUpdateRequest(BaseModel):
     """사용자 설정 업데이트 요청"""
     sharing_enabled: bool
+    health_sharing_enabled: bool
 
 
 class UserSettingsResponse(BaseModel):
     """사용자 설정 응답"""
     sharing_enabled: bool
+    health_sharing_enabled: bool
     username: str
     display_name: str

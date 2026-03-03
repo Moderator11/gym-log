@@ -66,6 +66,7 @@ def get_me(
         )
     return UserSettingsResponse(
         sharing_enabled=user.sharing_enabled,
+        health_sharing_enabled=user.health_sharing_enabled,
         username=user.username,
         display_name=user.display_name or user.username
     )
@@ -80,8 +81,10 @@ def update_settings(
     """현재 사용자 설정 업데이트"""
     try:
         user = auth_service.update_sharing(user_id, request.sharing_enabled)
+        user = auth_service.update_health_sharing(user_id, request.health_sharing_enabled)
         return UserSettingsResponse(
             sharing_enabled=user.sharing_enabled,
+            health_sharing_enabled=user.health_sharing_enabled,
             username=user.username,
             display_name=user.display_name or user.username
         )

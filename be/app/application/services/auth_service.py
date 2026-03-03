@@ -72,3 +72,7 @@ class AuthService:
     def update_sharing(self, user_id: int, sharing_enabled: bool) -> User:
         """사용자의 운동 공유 설정 업데이트"""
         return self.user_repository.update_sharing(user_id, sharing_enabled)
+
+    def update_health_sharing(self, user_id: int, health_sharing_enabled: bool):
+        """건강 기록 공유 설정 업데이트"""
+        return self.user_repository.update_health_sharing(user_id, health_sharing_enabled)

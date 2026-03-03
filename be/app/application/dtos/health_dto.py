@@ -24,13 +24,11 @@ class HealthRecordEntryCreate(BaseModel):
 
 class HealthRecordCreate(BaseModel):
     record_date: str            # YYYY-MM-DD
-    is_shared: bool = False
     entries: List[HealthRecordEntryCreate] = []
 
 
 class HealthRecordUpdate(BaseModel):
     record_date: str
-    is_shared: bool
     entries: List[HealthRecordEntryCreate] = []
 
 
@@ -45,5 +43,4 @@ class HealthRecordEntryResponse(BaseModel):
 class HealthRecordResponse(BaseModel):
     id: int
     record_date: str
-    is_shared: bool
     entries: List[HealthRecordEntryResponse]

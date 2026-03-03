@@ -18,6 +18,7 @@ class FriendInfo(BaseModel):
     username: str
     display_name: str
     sharing_enabled: bool
+    health_sharing_enabled: bool
 
 
 class PendingRequestInfo(BaseModel):

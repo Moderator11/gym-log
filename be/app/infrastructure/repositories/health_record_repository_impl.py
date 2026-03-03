@@ -24,7 +24,6 @@ class HealthRecordRepositoryImpl(HealthRecordRepository):
             id=r.id,
             user_id=r.user_id,
             record_date=r.record_date,
-            is_shared=r.is_shared,
             entries=entries,
         )
 
@@ -40,7 +39,6 @@ class HealthRecordRepositoryImpl(HealthRecordRepository):
         db_r = HealthRecordModel(
             user_id=record.user_id,
             record_date=record.record_date,
-            is_shared=record.is_shared,
         )
         self.db.add(db_r)
         self.db.flush()  # ID 확보
@@ -77,7 +75,6 @@ class HealthRecordRepositoryImpl(HealthRecordRepository):
             raise ValueError("건강 기록을 찾을 수 없습니다")
 
         db_r.record_date = record.record_date
-        db_r.is_shared = record.is_shared
 
         # 기존 항목 삭제 후 재삽입 (간단하고 안전)
         for e in list(db_r.entries):
@@ -105,14 +102,5 @@ class HealthRecordRepositoryImpl(HealthRecordRepository):
             self.db.commit()
 
     def find_shared_by_user(self, user_id: int) -> List[HealthRecord]:
-        rows = (
-            self.db.query(HealthRecordModel)
-            .options(joinedload(HealthRecordModel.entries))
-            .filter(
-                HealthRecordModel.user_id == user_id,
-                HealthRecordModel.is_shared == True,
-            )
-            .order_by(HealthRecordModel.record_date.desc())
-            .all()
-        )
-        return [self._to_domain(r) for r in rows]
+        """호환성 유지 — 이제 user-level 공유 설정을 사용하므로 전체 반환"""
+        return self.find_by_user(user_id)

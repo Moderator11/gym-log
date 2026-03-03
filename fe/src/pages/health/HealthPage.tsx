@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
-import { Plus, Trash2, Pencil, Share2, EyeOff, Activity } from "lucide-react";
+import { Plus, Trash2, Pencil, Activity } from "lucide-react";
 
 // ── 지표 관리 탭 ──────────────────────────────────────────────────────────
 
@@ -90,7 +90,6 @@ interface RecordFormProps {
   initial?: HealthRecord;
   onSubmit: (payload: {
     record_date: string;
-    is_shared: boolean;
     entries: HealthRecordEntryPayload[];
   }) => Promise<void>;
   onCancel: () => void;
@@ -98,7 +97,6 @@ interface RecordFormProps {
 
 const RecordForm = ({ metrics, initial, onSubmit, onCancel }: RecordFormProps) => {
   const [date, setDate] = useState(initial?.record_date ?? new Date().toISOString().slice(0, 10));
-  const [isShared, setIsShared] = useState(initial?.is_shared ?? false);
   const [values, setValues] = useState<Record<number, string>>(() => {
     if (!initial) return {};
     return Object.fromEntries(
@@ -114,7 +112,7 @@ const RecordForm = ({ metrics, initial, onSubmit, onCancel }: RecordFormProps) =
       metric_id: m.id,
       value: values[m.id] !== "" && values[m.id] != null ? parseFloat(values[m.id]) : null,
     }));
-    await onSubmit({ record_date: date, is_shared: isShared, entries });
+    await onSubmit({ record_date: date, entries });
     setLoading(false);
   };
 
@@ -151,16 +149,6 @@ const RecordForm = ({ metrics, initial, onSubmit, onCancel }: RecordFormProps) =
           ))}
         </div>
       )}
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={isShared}
-          onChange={(e) => setIsShared(e.target.checked)}
-          className="w-4 h-4 rounded border-gray-300 text-primary-600"
-        />
-        <span className="text-sm text-gray-700">친구에게 이 기록 공유</span>
-      </label>
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" isLoading={loading} className="flex-1">저장</Button>
@@ -209,18 +197,7 @@ const RecordsTab = () => {
           {records.map((rec) => (
             <Card key={rec.id}>
               <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-800">{rec.record_date}</span>
-                  {rec.is_shared ? (
-                    <span className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                      <Share2 size={11} /> 공유 중
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                      <EyeOff size={11} /> 비공개
-                    </span>
-                  )}
-                </div>
+                <span className="font-semibold text-gray-800">{rec.record_date}</span>
                 <div className="flex gap-1">
                   <Button size="sm" variant="secondary" onClick={() => setEditTarget(rec)}>
                     <Pencil size={13} />

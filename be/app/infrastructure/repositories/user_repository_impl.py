@@ -47,6 +47,7 @@ class UserRepositoryImpl(UserRepository):
             hashed_password=db_user.hashed_password,
             created_at=db_user.created_at,
             sharing_enabled=db_user.sharing_enabled,
+            health_sharing_enabled=db_user.health_sharing_enabled,
         )
 
     def find_suggestions(self, exclude_ids: List[int], limit: int = 5) -> List[User]:
@@ -69,4 +70,14 @@ class UserRepositoryImpl(UserRepository):
         self.db.commit()
         self.db.refresh(db_user)
 
+        return self._to_user(db_user)
+
+    def update_health_sharing(self, user_id: int, health_sharing_enabled: bool):
+        """건강 기록 공유 설정 업데이트"""
+        db_user = self.db.query(UserModel).filter(UserModel.id == user_id).first()
+        if not db_user:
+            raise ValueError("사용자를 찾을 수 없습니다")
+        db_user.health_sharing_enabled = health_sharing_enabled
+        self.db.commit()
+        self.db.refresh(db_user)
         return self._to_user(db_user)

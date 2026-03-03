@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from app.application.services.health_service import HealthService
 from app.application.services.friendship_service import FriendshipService
+from app.application.services.auth_service import AuthService
 from app.application.dtos.health_dto import (
     HealthMetricCreate,
     HealthMetricResponse,
@@ -14,6 +15,7 @@ from app.presentation.dependencies import (
     get_current_user_id,
     get_health_service,
     get_friendship_service,
+    get_auth_service,
 )
 
 router = APIRouter(prefix="/health", tags=["건강 기록"])
@@ -36,7 +38,6 @@ def _build_record_response(record, metrics_map: dict) -> HealthRecordResponse:
     return HealthRecordResponse(
         id=record.id,
         record_date=record.record_date,
-        is_shared=record.is_shared,
         entries=[_build_entry_response(e, metrics_map) for e in record.entries],
     )
 
@@ -100,7 +101,7 @@ def create_record(
 ):
     """건강 기록 생성"""
     entries = [{"metric_id": e.metric_id, "value": e.value} for e in body.entries]
-    record = svc.create_record(user_id, body.record_date, body.is_shared, entries)
+    record = svc.create_record(user_id, body.record_date, entries)
     metrics_map = {m.id: m for m in svc.get_metrics(user_id)}
     return _build_record_response(record, metrics_map)
 
@@ -130,7 +131,7 @@ def update_record(
     """건강 기록 수정"""
     try:
         entries = [{"metric_id": e.metric_id, "value": e.value} for e in body.entries]
-        record = svc.update_record(user_id, record_id, body.record_date, body.is_shared, entries)
+        record = svc.update_record(user_id, record_id, body.record_date, entries)
         metrics_map = {m.id: m for m in svc.get_metrics(user_id)}
         return _build_record_response(record, metrics_map)
     except ValueError as e:
@@ -163,16 +164,29 @@ def get_health_stats(
 
 # ── 친구 건강 기록 ────────────────────────────────────────────────────────────
 
+def _check_friend_health_sharing(user_id: int, friend_id: int,
+                                  friend_svc: FriendshipService, auth_svc: AuthService):
+    """친구 관계 확인 + 건강 공유 활성화 여부 확인"""
+    if not friend_svc.are_friends(user_id, friend_id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="친구가 아닙니다")
+    friend = auth_svc.get_user_by_id(friend_id)
+    if not friend or not friend.health_sharing_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="건강 기록 공유가 비활성화되어 있습니다"
+        )
+
+
 @router.get("/friends/{friend_id}/records", response_model=List[HealthRecordResponse])
 def get_friend_records(
     friend_id: int,
     user_id: int = Depends(get_current_user_id),
     svc: HealthService = Depends(get_health_service),
     friend_svc: FriendshipService = Depends(get_friendship_service),
+    auth_svc: AuthService = Depends(get_auth_service),
 ):
-    """친구의 공유된 건강 기록 조회"""
-    if not friend_svc.are_friends(user_id, friend_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="친구가 아닙니다")
+    """친구의 건강 기록 조회 (건강 공유 활성화 시)"""
+    _check_friend_health_sharing(user_id, friend_id, friend_svc, auth_svc)
     metrics_map = {m.id: m for m in svc.get_metrics(friend_id)}
     return [_build_record_response(r, metrics_map) for r in svc.get_friend_records(friend_id)]
 
@@ -183,8 +197,8 @@ def get_friend_health_stats(
     user_id: int = Depends(get_current_user_id),
     svc: HealthService = Depends(get_health_service),
     friend_svc: FriendshipService = Depends(get_friendship_service),
+    auth_svc: AuthService = Depends(get_auth_service),
 ):
-    """친구의 공유된 건강 지표 통계"""
-    if not friend_svc.are_friends(user_id, friend_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="친구가 아닙니다")
+    """친구의 건강 지표 통계 (건강 공유 활성화 시)"""
+    _check_friend_health_sharing(user_id, friend_id, friend_svc, auth_svc)
     return svc.get_friend_stats(friend_id)

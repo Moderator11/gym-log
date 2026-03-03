@@ -14,6 +14,7 @@ class UserModel(Base):
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     sharing_enabled = Column(Boolean, nullable=False, server_default="0")
+    health_sharing_enabled = Column(Boolean, nullable=False, server_default="0")
 
     workout_sessions = relationship("WorkoutSessionModel", back_populates="user")
     exercise_categories = relationship("ExerciseCategoryModel", back_populates="user", cascade="all, delete-orphan")
@@ -139,8 +140,6 @@ class HealthRecordModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     record_date = Column(String, nullable=False)  # YYYY-MM-DD
-    is_shared = Column(Boolean, nullable=False, server_default="0")
-
     user = relationship("UserModel")
     entries = relationship(
         "HealthRecordEntryModel",

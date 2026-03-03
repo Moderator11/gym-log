@@ -27,6 +27,11 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
+    def update_health_sharing(self, user_id: int, health_sharing_enabled: bool) -> User:
+        """건강 기록 공유 설정 업데이트"""
+        pass
+
+    @abstractmethod
     def find_suggestions(self, exclude_ids: List[int], limit: int = 5) -> List[User]:
         """친구 추천: 주어진 ID 목록을 제외한 랜덤 사용자 반환"""
         pass
