@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
-import { Dumbbell, LogOut, Tag, Menu, X } from "lucide-react";
+import { Dumbbell, LogOut, Tag, Menu, X, Users, BarChart2 } from "lucide-react";
 
 export const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
@@ -12,6 +12,8 @@ export const Navbar = () => {
   const navLinks = [
     { to: "/workouts", label: "운동 기록", icon: <Dumbbell size={16} /> },
     { to: "/categories", label: "카테고리", icon: <Tag size={16} /> },
+    { to: "/friends", label: "친구", icon: <Users size={16} /> },
+    { to: "/stats", label: "통계", icon: <BarChart2 size={16} /> },
   ];
 
   return (

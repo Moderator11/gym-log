@@ -1,0 +1,38 @@
+import apiClient from "./client";
+import { FriendInfo, PendingRequest, UserSearchResult, UserSuggestion } from "@/types/friend.types";
+import { WorkoutSession } from "@/types/workout.types";
+
+export const friendApi = {
+  search: async (q: string): Promise<UserSearchResult[]> => {
+    const response = await apiClient.get<UserSearchResult[]>("/friends/search", { params: { q } });
+    return response.data;
+  },
+
+  sendRequest: async (addressee_username: string): Promise<void> => {
+    await apiClient.post("/friends/request", { addressee_username });
+  },
+
+  getPendingRequests: async (): Promise<PendingRequest[]> => {
+    const response = await apiClient.get<PendingRequest[]>("/friends/requests/pending");
+    return response.data;
+  },
+
+  respondToRequest: async (friendship_id: number, action: "accept" | "decline"): Promise<void> => {
+    await apiClient.put(`/friends/requests/${friendship_id}`, { action });
+  },
+
+  getFriends: async (): Promise<FriendInfo[]> => {
+    const response = await apiClient.get<FriendInfo[]>("/friends");
+    return response.data;
+  },
+
+  getFriendWorkouts: async (friendId: number): Promise<WorkoutSession[]> => {
+    const response = await apiClient.get<WorkoutSession[]>(`/friends/${friendId}/workouts`);
+    return response.data;
+  },
+
+  getSuggestions: async (): Promise<UserSuggestion[]> => {
+    const response = await apiClient.get<UserSuggestion[]>("/friends/suggestions");
+    return response.data;
+  },
+};

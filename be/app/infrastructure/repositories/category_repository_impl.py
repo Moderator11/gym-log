@@ -15,6 +15,7 @@ class CategoryRepositoryImpl(CategoryRepository):
         db_category = ExerciseCategoryModel(
             user_id=category.user_id,
             name=category.name,
+            exercise_type=category.exercise_type,
         )
         self.db.add(db_category)
         self.db.flush()
@@ -55,6 +56,7 @@ class CategoryRepositoryImpl(CategoryRepository):
             raise ValueError(f"Category {category.id} not found")
 
         db_category.name = category.name
+        db_category.exercise_type = category.exercise_type
 
         # 태그 전체 교체
         self.db.query(CategoryTagModel).filter(
@@ -85,4 +87,5 @@ class CategoryRepositoryImpl(CategoryRepository):
             user_id=db_category.user_id,
             name=db_category.name,
             tags=[t.name for t in db_category.tags],
+            exercise_type=db_category.exercise_type,
         )

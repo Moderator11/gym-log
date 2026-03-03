@@ -41,7 +41,13 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
     initialWorkout
       ? initialWorkout.exercises.map((ex) => ({
           name: ex.name,
-          sets: ex.sets.map((s) => ({ weight_kg: s.weight_kg, reps: s.reps })),
+          exercise_type: ex.exercise_type,
+          sets: ex.sets.map((s) => ({
+            weight_kg: s.weight_kg,
+            reps: s.reps,
+            distance_km: s.distance_km,
+            duration_seconds: s.duration_seconds,
+          })),
         }))
       : []
   );
@@ -49,7 +55,7 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
   const { categories, createCategory } = useCategories();
 
   const addExercise = () => {
-    setExercises([...exercises, { name: "", sets: [] }]);
+    setExercises([...exercises, { name: "", exercise_type: "anaerobic", sets: [] }]);
   };
 
   const removeExercise = (index: number) => {
@@ -70,7 +76,7 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
       const existingNames = new Set(categories.map((c) => c.name));
       for (const ex of exercises) {
         if (ex.name && !existingNames.has(ex.name)) {
-          await createCategory({ name: ex.name, tags: [] });
+          await createCategory({ name: ex.name, tags: [], exercise_type: ex.exercise_type });
           existingNames.add(ex.name);
         }
       }
@@ -81,7 +87,13 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
         end_time: localToUtcTime(workoutDate, endTime),
         exercises: exercises.map((ex) => ({
           name: ex.name,
-          sets: ex.sets.map((s) => ({ weight_kg: s.weight_kg, reps: s.reps })),
+          exercise_type: ex.exercise_type,
+          sets: ex.sets.map((s) => ({
+            weight_kg: s.weight_kg,
+            reps: s.reps,
+            distance_km: s.distance_km,
+            duration_seconds: s.duration_seconds,
+          })),
         })),
       };
 

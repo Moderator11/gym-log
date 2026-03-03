@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 from app.domain.entities.user import User
 
 
@@ -19,4 +19,14 @@ class UserRepository(ABC):
     @abstractmethod
     def find_by_id(self, user_id: int) -> Optional[User]:
         """ID로 조회"""
+        pass
+
+    @abstractmethod
+    def update_sharing(self, user_id: int, sharing_enabled: bool) -> User:
+        """사용자 공유 설정 업데이트"""
+        pass
+
+    @abstractmethod
+    def find_suggestions(self, exclude_ids: List[int], limit: int = 5) -> List[User]:
+        """친구 추천: 주어진 ID 목록을 제외한 랜덤 사용자 반환"""
         pass

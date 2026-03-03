@@ -12,6 +12,8 @@ import {
   Edit,
   Trash2,
   ArrowLeft,
+  Zap,
+  Wind,
 } from "lucide-react";
 import { utcToLocalTime, utcToLocalDate } from "@/utils/time.util";
 
@@ -110,35 +112,67 @@ export const WorkoutDetailPage = () => {
             <p className="text-sm text-gray-400">등록된 운동이 없습니다.</p>
           ) : (
             <div className="space-y-3">
-              {workout.exercises.map((exercise, idx) => (
-                <div
-                  key={idx}
-                  className="bg-gray-50 rounded-xl p-4 border border-gray-100"
-                >
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    {exercise.name}
-                  </h3>
-                  {exercise.sets.length === 0 ? (
-                    <p className="text-xs text-gray-400">세트 기록 없음</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {exercise.sets.map((set) => (
-                        <div
-                          key={set.set_number}
-                          className="flex items-center gap-3 text-sm"
-                        >
-                          <span className="text-gray-400 w-12 text-xs">
-                            {set.set_number}세트
-                          </span>
-                          <span className="font-medium">{set.weight_kg} kg</span>
-                          <span className="text-gray-300">×</span>
-                          <span className="font-medium">{set.reps} 회</span>
-                        </div>
-                      ))}
+              {workout.exercises.map((exercise, idx) => {
+                const isAerobic = exercise.exercise_type === "aerobic";
+                const typeIcon = isAerobic ? <Wind size={14} /> : <Zap size={14} />;
+                const typeLabel = isAerobic ? "유산소" : "무산소";
+
+                return (
+                  <div
+                    key={idx}
+                    className="bg-gray-50 rounded-xl p-4 border border-gray-100"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900">
+                        {exercise.name}
+                      </h3>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full text-xs">
+                        {typeIcon}
+                        {typeLabel}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {exercise.sets.length === 0 ? (
+                      <p className="text-xs text-gray-400">세트 기록 없음</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {exercise.sets.map((set) => (
+                          <div
+                            key={set.set_number}
+                            className="flex items-center gap-3 text-sm"
+                          >
+                            <span className="text-gray-400 w-12 text-xs">
+                              {set.set_number}세트
+                            </span>
+                            {isAerobic ? (
+                              <>
+                                <span className="font-medium">
+                                  {set.distance_km} km
+                                </span>
+                                <span className="text-gray-300">·</span>
+                                <span className="font-medium">
+                                  {set.duration_seconds
+                                    ? `${Math.floor(set.duration_seconds / 60)}분 ${set.duration_seconds % 60}초`
+                                    : "0초"}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-medium">
+                                  {set.weight_kg} kg
+                                </span>
+                                <span className="text-gray-300">×</span>
+                                <span className="font-medium">
+                                  {set.reps} 회
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

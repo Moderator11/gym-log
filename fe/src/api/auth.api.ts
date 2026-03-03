@@ -6,6 +6,11 @@ import {
   User,
 } from "@/types/auth.types";
 
+export interface UserSettings {
+  username: string;
+  sharing_enabled: boolean;
+}
+
 export const authApi = {
   register: async (data: RegisterRequest): Promise<User> => {
     const response = await apiClient.post<User>("/auth/register", data);
@@ -14,6 +19,18 @@ export const authApi = {
 
   login: async (data: LoginRequest): Promise<TokenResponse> => {
     const response = await apiClient.post<TokenResponse>("/auth/login", data);
+    return response.data;
+  },
+
+  getMe: async (): Promise<UserSettings> => {
+    const response = await apiClient.get<UserSettings>("/auth/users/me");
+    return response.data;
+  },
+
+  updateSettings: async (sharing_enabled: boolean): Promise<UserSettings> => {
+    const response = await apiClient.put<UserSettings>("/auth/users/me/settings", {
+      sharing_enabled,
+    });
     return response.data;
   },
 };

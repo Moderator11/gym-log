@@ -12,9 +12,9 @@ class CategoryService:
     def __init__(self, category_repository: CategoryRepository):
         self.category_repository = category_repository
 
-    def create_category(self, user_id: int, name: str, tags: List[str] = None) -> ExerciseCategory:
+    def create_category(self, user_id: int, name: str, tags: List[str] = None, exercise_type: str = "anaerobic") -> ExerciseCategory:
         """카테고리 생성"""
-        category = ExerciseCategory(id=None, user_id=user_id, name=name, tags=tags or [])
+        category = ExerciseCategory(id=None, user_id=user_id, name=name, tags=tags or [], exercise_type=exercise_type)
         try:
             return self.category_repository.create(category)
         except Exception:
@@ -25,9 +25,9 @@ class CategoryService:
         return self.category_repository.find_by_user_id(user_id)
 
     def update_category(
-        self, category_id: int, user_id: int, name: str, tags: List[str] = None
+        self, category_id: int, user_id: int, name: str, tags: List[str] = None, exercise_type: str = "anaerobic"
     ) -> ExerciseCategory:
-        """카테고리 이름·태그 수정 (소유자만)"""
+        """카테고리 이름·태그·운동타입 수정 (소유자만)"""
         category = self.category_repository.find_by_id(category_id)
         if not category:
             raise ValueError("카테고리를 찾을 수 없습니다")
@@ -35,6 +35,7 @@ class CategoryService:
             raise ValueError("권한이 없습니다")
         category.name = name
         category.tags = tags or []
+        category.exercise_type = exercise_type
         try:
             return self.category_repository.update(category)
         except Exception:

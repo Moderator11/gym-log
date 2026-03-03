@@ -39,17 +39,32 @@ export const WorkoutCard = ({ workout }: WorkoutCardProps) => {
             </div>
 
             <div className="space-y-1">
-              {workout.exercises.slice(0, 3).map((exercise, idx) => (
-                <div key={idx} className="text-sm text-gray-500">
-                  · {exercise.name}{" "}
-                  {exercise.sets.length > 0 && (
-                    <span className="text-gray-400">
-                      ({exercise.sets.length}세트 /{" "}
-                      {exercise.sets[0].weight_kg}kg × {exercise.sets[0].reps}회)
-                    </span>
-                  )}
-                </div>
-              ))}
+              {workout.exercises.slice(0, 3).map((exercise, idx) => {
+                const firstSet = exercise.sets[0];
+                const isAerobic = exercise.exercise_type === "aerobic";
+
+                return (
+                  <div key={idx} className="text-sm text-gray-500 flex items-center gap-1">
+                    <span>·</span>
+                    <span>{exercise.name}</span>
+                    {firstSet && (
+                      <span className="text-gray-400 flex items-center gap-1">
+                        ({exercise.sets.length}세트 /
+                        {isAerobic ? (
+                          <span>
+                            {firstSet.distance_km}km × {Math.floor((firstSet.duration_seconds ?? 0) / 60)}분
+                          </span>
+                        ) : (
+                          <span>
+                            {firstSet.weight_kg}kg × {firstSet.reps}회
+                          </span>
+                        )}
+                        )
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
               {workout.exercises.length > 3 && (
                 <div className="text-xs text-gray-400">
                   + {workout.exercises.length - 3}개 더

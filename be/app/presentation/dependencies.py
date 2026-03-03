@@ -5,9 +5,12 @@ from app.infrastructure.database import get_db
 from app.infrastructure.repositories.user_repository_impl import UserRepositoryImpl
 from app.infrastructure.repositories.workout_repository_impl import WorkoutRepositoryImpl
 from app.infrastructure.repositories.category_repository_impl import CategoryRepositoryImpl
+from app.infrastructure.repositories.friendship_repository_impl import FriendshipRepositoryImpl
 from app.application.services.auth_service import AuthService
 from app.application.services.workout_service import WorkoutService
 from app.application.services.category_service import CategoryService
+from app.application.services.friendship_service import FriendshipService
+from app.application.services.stats_service import StatsService
 
 security = HTTPBearer()
 
@@ -46,6 +49,26 @@ def get_category_service(
 ) -> CategoryService:
     """카테고리 서비스 의존성"""
     return CategoryService(category_repository)
+
+
+def get_friendship_repository(db: Session = Depends(get_db)) -> FriendshipRepositoryImpl:
+    """친구 관계 레포지토리 의존성"""
+    return FriendshipRepositoryImpl(db)
+
+
+def get_friendship_service(
+    friendship_repository: FriendshipRepositoryImpl = Depends(get_friendship_repository),
+    user_repository: UserRepositoryImpl = Depends(get_user_repository),
+) -> FriendshipService:
+    """친구 서비스 의존성"""
+    return FriendshipService(friendship_repository, user_repository)
+
+
+def get_stats_service(
+    workout_repository: WorkoutRepositoryImpl = Depends(get_workout_repository)
+) -> StatsService:
+    """통계 서비스 의존성"""
+    return StatsService(workout_repository)
 
 
 def get_current_user_id(

@@ -63,3 +63,11 @@ class AuthService:
             return int(user_id)
         except:
             return None
+
+    def get_user_by_id(self, user_id: int) -> Optional[User]:
+        """ID로 사용자 조회"""
+        return self.user_repository.find_by_id(user_id)
+
+    def update_sharing(self, user_id: int, sharing_enabled: bool) -> User:
+        """사용자의 운동 공유 설정 업데이트"""
+        return self.user_repository.update_sharing(user_id, sharing_enabled)

@@ -6,6 +6,9 @@ import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { WorkoutListPage } from "@/pages/workout/WorkoutListPage";
 import { WorkoutDetailPage } from "@/pages/workout/WorkoutDetailPage";
 import { CategoryPage } from "@/pages/category/CategoryPage";
+import { FriendsPage } from "@/pages/friends/FriendsPage";
+import { FriendWorkoutsPage } from "@/pages/friends/FriendWorkoutsPage";
+import { StatsPage } from "@/pages/stats/StatsPage";
 
 export const AppRoutes = () => {
   return (
@@ -36,6 +39,30 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <CategoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/friends"
+            element={
+              <ProtectedRoute>
+                <FriendsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/friends/:id/workouts"
+            element={
+              <ProtectedRoute>
+                <FriendWorkoutsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stats"
+            element={
+              <ProtectedRoute>
+                <StatsPage />
               </ProtectedRoute>
             }
           />

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.infrastructure.database import init_db
-from app.presentation.routers import auth, workouts, categories
+from app.presentation.routers import auth, workouts, categories, friends, stats
 from app.core.config import CORS_ORIGINS
 
 # 데이터베이스 초기화
@@ -26,6 +26,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(workouts.router)
 app.include_router(categories.router)
+app.include_router(friends.router)
+app.include_router(stats.router)
 
 
 @app.get("/")

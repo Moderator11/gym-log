@@ -25,3 +25,14 @@ class TokenResponse(BaseModel):
     """토큰 응답"""
     access_token: str
     token_type: str = "bearer"
+
+
+class UserSettingsUpdateRequest(BaseModel):
+    """사용자 설정 업데이트 요청"""
+    sharing_enabled: bool
+
+
+class UserSettingsResponse(BaseModel):
+    """사용자 설정 응답"""
+    sharing_enabled: bool
+    username: str

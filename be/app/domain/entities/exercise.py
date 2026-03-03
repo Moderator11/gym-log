@@ -10,6 +10,7 @@ class Exercise:
     workout_session_id: Optional[int]
     name: str
     sets: List[ExerciseSet] = field(default_factory=list)
+    exercise_type: str = "anaerobic"
 
     def __str__(self):
         return f"{self.name} - {len(self.sets)}세트"

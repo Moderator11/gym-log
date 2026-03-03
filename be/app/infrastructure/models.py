@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Date, Time, Float, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, DateTime, Date, Time, Float, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.infrastructure.database import Base
@@ -12,6 +12,7 @@ class UserModel(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    sharing_enabled = Column(Boolean, nullable=False, server_default="0")
 
     workout_sessions = relationship("WorkoutSessionModel", back_populates="user")
     exercise_categories = relationship("ExerciseCategoryModel", back_populates="user", cascade="all, delete-orphan")
@@ -24,6 +25,7 @@ class ExerciseCategoryModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
+    exercise_type = Column(String, nullable=False, server_default="anaerobic")
 
     __table_args__ = (
         UniqueConstraint("user_id", "name", name="uq_category_user_name"),
@@ -75,19 +77,39 @@ class ExerciseModel(Base):
     id = Column(Integer, primary_key=True, index=True)
     workout_session_id = Column(Integer, ForeignKey("workout_sessions.id"), nullable=False)
     name = Column(String, nullable=False)
+    exercise_type = Column(String, nullable=False, server_default="anaerobic")
 
     workout_session = relationship("WorkoutSessionModel", back_populates="exercises")
     sets = relationship("ExerciseSetModel", back_populates="exercise", cascade="all, delete-orphan", order_by="ExerciseSetModel.set_number")
 
 
 class ExerciseSetModel(Base):
-    """운동 세트 테이블 (세트별 무게 및 반복 횟수)"""
+    """운동 세트 테이블 (세트별 무게 및 반복 횟수, 또는 거리 및 시간)"""
     __tablename__ = "exercise_sets"
 
     id = Column(Integer, primary_key=True, index=True)
     exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=False)
     set_number = Column(Integer, nullable=False)
-    weight_kg = Column(Float, nullable=False)
-    reps = Column(Integer, nullable=False)
+    weight_kg = Column(Float, nullable=True)
+    reps = Column(Integer, nullable=True)
+    distance_km = Column(Float, nullable=True)
+    duration_seconds = Column(Integer, nullable=True)
 
     exercise = relationship("ExerciseModel", back_populates="sets")
+
+
+class FriendshipModel(Base):
+    """친구 관계 테이블"""
+    __tablename__ = "friendships"
+
+    id = Column(Integer, primary_key=True, index=True)
+    requester_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    addressee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(String, nullable=False, default="pending")  # pending/accepted/declined
+
+    __table_args__ = (
+        UniqueConstraint("requester_id", "addressee_id", name="uq_friendship"),
+    )
+
+    requester = relationship("UserModel", foreign_keys=[requester_id])
+    addressee = relationship("UserModel", foreign_keys=[addressee_id])

@@ -1,9 +1,10 @@
 import apiClient from "./client";
-import { ExerciseCategory } from "@/types/workout.types";
+import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 
 export interface CategoryPayload {
   name: string;
   tags: string[];
+  exercise_type: ExerciseType;
 }
 
 export const categoryApi = {

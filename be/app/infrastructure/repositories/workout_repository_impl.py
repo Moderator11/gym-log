@@ -27,7 +27,8 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         for exercise in session.exercises:
             db_exercise = ExerciseModel(
                 workout_session_id=db_session.id,
-                name=exercise.name
+                name=exercise.name,
+                exercise_type=exercise.exercise_type
             )
             self.db.add(db_exercise)
             self.db.flush()
@@ -37,7 +38,9 @@ class WorkoutRepositoryImpl(WorkoutRepository):
                     exercise_id=db_exercise.id,
                     set_number=s.set_number,
                     weight_kg=s.weight_kg,
-                    reps=s.reps
+                    reps=s.reps,
+                    distance_km=s.distance_km,
+                    duration_seconds=s.duration_seconds,
                 )
                 self.db.add(db_set)
 
@@ -83,7 +86,8 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         for exercise in session.exercises:
             db_exercise = ExerciseModel(
                 workout_session_id=db_session.id,
-                name=exercise.name
+                name=exercise.name,
+                exercise_type=exercise.exercise_type
             )
             self.db.add(db_exercise)
             self.db.flush()
@@ -93,7 +97,9 @@ class WorkoutRepositoryImpl(WorkoutRepository):
                     exercise_id=db_exercise.id,
                     set_number=s.set_number,
                     weight_kg=s.weight_kg,
-                    reps=s.reps
+                    reps=s.reps,
+                    distance_km=s.distance_km,
+                    duration_seconds=s.duration_seconds,
                 )
                 self.db.add(db_set)
 
@@ -121,7 +127,9 @@ class WorkoutRepositoryImpl(WorkoutRepository):
                 ExerciseSet(
                     set_number=db_set.set_number,
                     weight_kg=db_set.weight_kg,
-                    reps=db_set.reps
+                    reps=db_set.reps,
+                    distance_km=db_set.distance_km,
+                    duration_seconds=db_set.duration_seconds,
                 )
                 for db_set in db_exercise.sets
             ]
@@ -129,6 +137,7 @@ class WorkoutRepositoryImpl(WorkoutRepository):
                 id=db_exercise.id,
                 workout_session_id=db_exercise.workout_session_id,
                 name=db_exercise.name,
+                exercise_type=db_exercise.exercise_type,
                 sets=sets
             )
             exercises.append(exercise)

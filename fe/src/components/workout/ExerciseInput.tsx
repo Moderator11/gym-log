@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Trash2, Plus, Minus, ChevronDown, ChevronUp } from "lucide-react";
-import { ExerciseCategory } from "@/types/workout.types";
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp, Zap, Wind } from "lucide-react";
+import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 
 export interface SetInputData {
-  weight_kg: number;
-  reps: number;
+  weight_kg?: number | null;
+  reps?: number | null;
+  distance_km?: number | null;
+  duration_seconds?: number | null;
 }
 
 export interface ExerciseInputData {
   name: string;
+  exercise_type: ExerciseType;
   sets: SetInputData[];
 }
 
@@ -74,22 +77,34 @@ export const ExerciseInput = ({
 
   const handleNameChange = (name: string) => onChange({ ...exercise, name });
 
+  const handleTypeChange = (exerciseType: ExerciseType) => onChange({ ...exercise, exercise_type: exerciseType });
+
   const addSet = () => {
     const prev = exercise.sets[exercise.sets.length - 1];
-    onChange({
-      ...exercise,
-      sets: [
-        ...exercise.sets,
-        { weight_kg: prev?.weight_kg ?? 20, reps: prev?.reps ?? 10 },
-      ],
-    });
+    if (exercise.exercise_type === "anaerobic") {
+      onChange({
+        ...exercise,
+        sets: [
+          ...exercise.sets,
+          { weight_kg: prev?.weight_kg ?? 20, reps: prev?.reps ?? 10 },
+        ],
+      });
+    } else {
+      onChange({
+        ...exercise,
+        sets: [
+          ...exercise.sets,
+          { distance_km: prev?.distance_km ?? 1, duration_seconds: prev?.duration_seconds ?? 300 },
+        ],
+      });
+    }
   };
 
   const removeSet = (idx: number) => {
     onChange({ ...exercise, sets: exercise.sets.filter((_, i) => i !== idx) });
   };
 
-  const updateSet = (idx: number, field: keyof SetInputData, value: number) => {
+  const updateSet = (idx: number, field: keyof SetInputData, value: number | null) => {
     const next = [...exercise.sets];
     next[idx] = { ...next[idx], [field]: value };
     onChange({ ...exercise, sets: next });
@@ -97,6 +112,9 @@ export const ExerciseInput = ({
 
   /* 접힌 상태 — 컴팩트 한 줄 */
   if (collapsed) {
+    const typeIcon = exercise.exercise_type === "anaerobic" ? <Zap size={12} /> : <Wind size={12} />;
+    const typeLabel = exercise.exercise_type === "anaerobic" ? "무산소" : "유산소";
+
     return (
       <div className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 border border-indigo-200 rounded-xl">
         {/* 이름 레이블 */}
@@ -113,6 +131,12 @@ export const ExerciseInput = ({
             <span className="text-sm text-indigo-400">운동 선택…</span>
           )}
         </button>
+
+        {/* 타입 배지 */}
+        <span className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+          {typeIcon}
+          {typeLabel}
+        </span>
 
         {/* 세트 배지 */}
         <span className="flex-shrink-0 text-xs text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full">
@@ -147,56 +171,94 @@ export const ExerciseInput = ({
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
       {/* 헤더: 운동 이름 선택 + 접기 + 삭제 */}
       <div className="flex gap-2 items-end p-3 sm:p-4">
-        <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-600 mb-1">
-            운동 이름
-          </label>
-          {showNewInput ? (
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={newName}
+        <div className="flex-1 grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              운동 이름
+            </label>
+            {showNewInput ? (
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={newName}
+                  onChange={(e) => {
+                    setNewName(e.target.value);
+                    handleNameChange(e.target.value);
+                  }}
+                  placeholder="운동 이름 직접 입력"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewInput(false);
+                    setNewName("");
+                    handleNameChange("");
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
+                >
+                  목록
+                </button>
+              </div>
+            ) : (
+              <select
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                value={exercise.name}
                 onChange={(e) => {
-                  setNewName(e.target.value);
-                  handleNameChange(e.target.value);
+                  if (e.target.value === "__new__") {
+                    setShowNewInput(true);
+                    handleNameChange("");
+                  } else {
+                    const cat = categories.find(c => c.name === e.target.value);
+                    handleNameChange(e.target.value);
+                    if (cat) {
+                      handleTypeChange(cat.exercise_type);
+                    }
+                  }
                 }}
-                placeholder="운동 이름 직접 입력"
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+              >
+                <option value="">운동 선택…</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+                <option value="__new__">+ 직접 입력</option>
+              </select>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              운동 타입
+            </label>
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setShowNewInput(false);
-                  setNewName("");
-                  handleNameChange("");
-                }}
-                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
+                onClick={() => handleTypeChange("anaerobic")}
+                className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
+                  exercise.exercise_type === "anaerobic"
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
               >
-                목록
+                <Zap size={12} />
+                무산소
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTypeChange("aerobic")}
+                className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
+                  exercise.exercise_type === "aerobic"
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                <Wind size={12} />
+                유산소
               </button>
             </div>
-          ) : (
-            <select
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-              value={exercise.name}
-              onChange={(e) => {
-                if (e.target.value === "__new__") {
-                  setShowNewInput(true);
-                  handleNameChange("");
-                } else {
-                  handleNameChange(e.target.value);
-                }
-              }}
-            >
-              <option value="">운동 선택…</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.name}>
-                  {c.name}
-                </option>
-              ))}
-              <option value="__new__">+ 직접 입력</option>
-            </select>
-          )}
+          </div>
         </div>
 
         {/* 접기 버튼 */}
@@ -248,21 +310,43 @@ export const ExerciseInput = ({
               {idx + 1}세트
             </span>
             <div className="flex items-center gap-3 flex-1 justify-center flex-wrap">
-              <Stepper
-                label="kg"
-                value={set.weight_kg}
-                step={0.5}
-                min={0}
-                onChange={(v) => updateSet(idx, "weight_kg", v)}
-              />
-              <span className="text-gray-300 text-lg self-end pb-1">×</span>
-              <Stepper
-                label="회"
-                value={set.reps}
-                step={1}
-                min={1}
-                onChange={(v) => updateSet(idx, "reps", v)}
-              />
+              {exercise.exercise_type === "anaerobic" ? (
+                <>
+                  <Stepper
+                    label="kg"
+                    value={set.weight_kg ?? 20}
+                    step={0.5}
+                    min={0}
+                    onChange={(v) => updateSet(idx, "weight_kg", v)}
+                  />
+                  <span className="text-gray-300 text-lg self-end pb-1">×</span>
+                  <Stepper
+                    label="회"
+                    value={set.reps ?? 10}
+                    step={1}
+                    min={1}
+                    onChange={(v) => updateSet(idx, "reps", v)}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stepper
+                    label="km"
+                    value={set.distance_km ?? 1}
+                    step={0.1}
+                    min={0}
+                    onChange={(v) => updateSet(idx, "distance_km", v)}
+                  />
+                  <span className="text-gray-300 text-lg self-end pb-1">·</span>
+                  <Stepper
+                    label="초"
+                    value={set.duration_seconds ?? 300}
+                    step={30}
+                    min={30}
+                    onChange={(v) => updateSet(idx, "duration_seconds", v)}
+                  />
+                </>
+              )}
             </div>
             <button
               type="button"

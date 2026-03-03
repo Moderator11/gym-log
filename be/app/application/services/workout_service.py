@@ -88,7 +88,9 @@ class WorkoutService:
             ExerciseSet(
                 set_number=i + 1,
                 weight_kg=s.weight_kg,
-                reps=s.reps
+                reps=s.reps,
+                distance_km=s.distance_km,
+                duration_seconds=s.duration_seconds,
             )
             for i, s in enumerate(request.sets)
         ]
@@ -97,5 +99,6 @@ class WorkoutService:
             id=None,
             workout_session_id=None,
             name=request.name,
+            exercise_type=request.exercise_type,
             sets=sets
         )

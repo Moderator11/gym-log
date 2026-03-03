@@ -1,12 +1,17 @@
+export type ExerciseType = "anaerobic" | "aerobic";
+
 export interface ExerciseSet {
   set_number: number;
-  weight_kg: number;
-  reps: number;
+  weight_kg?: number | null;
+  reps?: number | null;
+  distance_km?: number | null;
+  duration_seconds?: number | null;
 }
 
 export interface Exercise {
   id?: number;
   name: string;
+  exercise_type: ExerciseType;
   sets: ExerciseSet[];
 }
 
@@ -26,6 +31,7 @@ export interface ExerciseCategory {
   id: number;
   name: string;
   tags: string[];
+  exercise_type: ExerciseType;
 }
 
 export interface WorkoutCreateRequest {
@@ -34,16 +40,14 @@ export interface WorkoutCreateRequest {
   end_time: string;       // UTC 시각 (HH:MM:SS)
   exercises: {
     name: string;
-    sets: { weight_kg: number; reps: number }[];
+    exercise_type: ExerciseType;
+    sets: {
+      weight_kg?: number | null;
+      reps?: number | null;
+      distance_km?: number | null;
+      duration_seconds?: number | null;
+    }[];
   }[];
 }
 
-export interface WorkoutUpdateRequest {
-  workout_date?: string;
-  start_time?: string;
-  end_time?: string;
-  exercises?: {
-    name: string;
-    sets: { weight_kg: number; reps: number }[];
-  }[];
-}
+export type WorkoutUpdateRequest = Partial<WorkoutCreateRequest>;

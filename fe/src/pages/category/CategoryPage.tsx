@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { useCategories } from "@/hooks/useCategories";
-import { ExerciseCategory } from "@/types/workout.types";
+import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Plus, Pencil, Trash2, Tag, X, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, Tag, X, Check, Zap, Wind } from "lucide-react";
 
 /* ─────────────────────────── 태그 입력 서브 컴포넌트 ─────────────────────────── */
 interface TagInputProps {
@@ -71,13 +71,14 @@ const TagInput = ({ tags, onChange }: TagInputProps) => {
 /* ─────────────────────────── 카테고리 행 ─────────────────────────── */
 interface CategoryRowProps {
   category: ExerciseCategory;
-  onUpdate: (id: number, name: string, tags: string[]) => Promise<void>;
+  onUpdate: (id: number, name: string, tags: string[], exerciseType: ExerciseType) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
 const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
   const [tags, setTags] = useState<string[]>(category.tags);
+  const [exerciseType, setExerciseType] = useState<ExerciseType>(category.exercise_type);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -86,7 +87,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
     if (!name.trim()) return;
     setSaving(true);
     try {
-      await onUpdate(category.id, name.trim(), tags);
+      await onUpdate(category.id, name.trim(), tags, exerciseType);
       setEditing(false);
     } finally {
       setSaving(false);
@@ -96,6 +97,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
   const handleCancel = () => {
     setName(category.name);
     setTags(category.tags);
+    setExerciseType(category.exercise_type);
     setEditing(false);
   };
 
@@ -120,6 +122,35 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
           autoFocus
         />
         <div>
+          <p className="text-xs text-gray-500 mb-2">운동 타입</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setExerciseType("anaerobic")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                exerciseType === "anaerobic"
+                  ? "bg-primary-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              <Zap size={14} />
+              무산소
+            </button>
+            <button
+              type="button"
+              onClick={() => setExerciseType("aerobic")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                exerciseType === "aerobic"
+                  ? "bg-primary-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              <Wind size={14} />
+              유산소
+            </button>
+          </div>
+        </div>
+        <div>
           <p className="text-xs text-gray-500 mb-1">태그</p>
           <TagInput tags={tags} onChange={setTags} />
         </div>
@@ -136,10 +167,19 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
     );
   }
 
+  const typeIcon = category.exercise_type === "anaerobic" ? <Zap size={14} /> : <Wind size={14} />;
+  const typeLabel = category.exercise_type === "anaerobic" ? "무산소" : "유산소";
+
   return (
     <div className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 truncate">{category.name}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-medium text-gray-900 truncate">{category.name}</p>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs whitespace-nowrap">
+            {typeIcon}
+            {typeLabel}
+          </span>
+        </div>
         {category.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1.5">
             {category.tags.map((t) => (
@@ -201,6 +241,7 @@ export const CategoryPage = () => {
 
   const [newName, setNewName] = useState("");
   const [newTags, setNewTags] = useState<string[]>([]);
+  const [newExerciseType, setNewExerciseType] = useState<ExerciseType>("anaerobic");
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -231,17 +272,18 @@ export const CategoryPage = () => {
     if (!newName.trim()) return;
     setCreating(true);
     try {
-      await createCategory({ name: newName.trim(), tags: newTags });
+      await createCategory({ name: newName.trim(), tags: newTags, exercise_type: newExerciseType });
       setNewName("");
       setNewTags([]);
+      setNewExerciseType("anaerobic");
       setShowForm(false);
     } finally {
       setCreating(false);
     }
   };
 
-  const handleUpdate = async (id: number, name: string, tags: string[]) => {
-    await updateCategory({ id, payload: { name, tags } });
+  const handleUpdate = async (id: number, name: string, tags: string[], exerciseType: ExerciseType) => {
+    await updateCategory({ id, payload: { name, tags, exercise_type: exerciseType } });
   };
 
   const handleDelete = async (id: number) => {
@@ -279,6 +321,35 @@ export const CategoryPage = () => {
             autoFocus
           />
           <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">운동 타입</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setNewExerciseType("anaerobic")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                  newExerciseType === "anaerobic"
+                    ? "bg-primary-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <Zap size={14} />
+                무산소
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewExerciseType("aerobic")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                  newExerciseType === "aerobic"
+                    ? "bg-primary-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <Wind size={14} />
+                유산소
+              </button>
+            </div>
+          </div>
+          <div>
             <p className="text-sm font-medium text-gray-700 mb-1">태그</p>
             <TagInput tags={newTags} onChange={setNewTags} />
           </div>
@@ -291,6 +362,7 @@ export const CategoryPage = () => {
                 setShowForm(false);
                 setNewName("");
                 setNewTags([]);
+                setNewExerciseType("anaerobic");
               }}
             >
               취소

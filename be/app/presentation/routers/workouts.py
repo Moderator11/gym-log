@@ -97,11 +97,14 @@ def _to_response(session) -> WorkoutSessionResponse:
         ExerciseResponse(
             id=ex.id,
             name=ex.name,
+            exercise_type=ex.exercise_type,
             sets=[
                 ExerciseSetResponse(
                     set_number=s.set_number,
                     weight_kg=s.weight_kg,
-                    reps=s.reps
+                    reps=s.reps,
+                    distance_km=s.distance_km,
+                    duration_seconds=s.duration_seconds,
                 )
                 for s in ex.sets
             ]

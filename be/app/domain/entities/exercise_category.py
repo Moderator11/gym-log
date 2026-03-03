@@ -13,6 +13,7 @@ class ExerciseCategory:
     user_id: int
     name: str
     tags: List[str] = field(default_factory=list)
+    exercise_type: str = "anaerobic"
 
     def __str__(self):
         return self.name

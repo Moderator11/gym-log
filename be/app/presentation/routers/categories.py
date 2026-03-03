@@ -12,7 +12,7 @@ router = APIRouter(prefix="/categories", tags=["운동 카테고리"])
 
 
 def _to_response(category) -> CategoryResponse:
-    return CategoryResponse(id=category.id, name=category.name, tags=category.tags)
+    return CategoryResponse(id=category.id, name=category.name, tags=category.tags, exercise_type=category.exercise_type)
 
 
 @router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
@@ -23,7 +23,7 @@ def create_category(
 ):
     """운동 카테고리 생성"""
     try:
-        category = category_service.create_category(user_id, request.name, request.tags)
+        category = category_service.create_category(user_id, request.name, request.tags, request.exercise_type)
         return _to_response(category)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -46,10 +46,10 @@ def update_category(
     user_id: int = Depends(get_current_user_id),
     category_service: CategoryService = Depends(get_category_service),
 ):
-    """운동 카테고리 수정 (이름 + 태그)"""
+    """운동 카테고리 수정 (이름 + 태그 + 운동타입)"""
     try:
         category = category_service.update_category(
-            category_id, user_id, request.name, request.tags
+            category_id, user_id, request.name, request.tags, request.exercise_type
         )
         return _to_response(category)
     except ValueError as e:
