@@ -18,6 +18,9 @@ RUN pip install --upgrade pip \
 # 프로젝트 전체 복사
 COPY . .
 
+# DB 볼륨 마운트 대상 디렉토리 생성 (volume mount 전에 존재해야 권한 정상 적용)
+RUN mkdir -p /app/data
+
 # FastAPI 실행 포트
 EXPOSE 8000
 

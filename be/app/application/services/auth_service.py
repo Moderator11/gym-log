@@ -4,11 +4,7 @@ from jose import jwt
 from passlib.context import CryptContext
 from app.domain.entities.user import User
 from app.domain.repositories.user_repository import UserRepository
-
-# 설정
-SECRET_KEY = "your-secret-key-change-this-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_DAYS = 30
+from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_DAYS
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

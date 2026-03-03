@@ -5,8 +5,10 @@ services:
     container_name: gym-log-be
     ports:
       - "8000:8000"
-    # volumes:
-    #   - ./be/data:/app/data # DB 파일 저장 위치
+    env_file:
+      - ./be/.env
+    volumes:
+      - ./data:/app/data   # SQLite DB 영속화: 프로젝트 루트의 ./data/ 폴더에 저장됨
     networks:
       - gym-network
 
