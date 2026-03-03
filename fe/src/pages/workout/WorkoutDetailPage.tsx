@@ -15,7 +15,7 @@ import {
   Zap,
   Wind,
 } from "lucide-react";
-import { utcToLocalTime, utcToLocalDate } from "@/utils/time.util";
+import { utcToLocalTime } from "@/utils/time.util";
 
 export const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,7 +51,7 @@ export const WorkoutDetailPage = () => {
     );
   }
 
-  const localDate = utcToLocalDate(workout.workout_date, workout.start_time);
+  const localDate = workout.workout_date;
   const localStart = utcToLocalTime(workout.workout_date, workout.start_time);
   const localEnd = utcToLocalTime(workout.workout_date, workout.end_time);
 
@@ -135,13 +135,13 @@ export const WorkoutDetailPage = () => {
                       <p className="text-xs text-gray-400">세트 기록 없음</p>
                     ) : (
                       <div className="space-y-1">
-                        {exercise.sets.map((set) => (
+                        {exercise.sets.map((set, setIdx) => (
                           <div
-                            key={set.set_number}
+                            key={setIdx}
                             className="flex items-center gap-3 text-sm"
                           >
                             <span className="text-gray-400 w-12 text-xs">
-                              {set.set_number}세트
+                              {setIdx + 1}세트
                             </span>
                             {isAerobic ? (
                               <>

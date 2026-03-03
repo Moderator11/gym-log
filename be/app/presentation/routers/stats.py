@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List
+from typing import List, Optional
+from datetime import date as date_type
 from app.application.services.stats_service import StatsService
 from app.application.services.friendship_service import FriendshipService
 from app.application.dtos.stats_dto import DailyStats, CalendarDayInfo, StatsComparisonResponse, FriendStatsComparison
@@ -10,11 +11,18 @@ router = APIRouter(prefix="/stats", tags=["통계"])
 
 @router.get("/comparison", response_model=StatsComparisonResponse)
 def get_comparison(
+    today: Optional[str] = None,
     user_id: int = Depends(get_current_user_id),
     svc: StatsService = Depends(get_stats_service)
 ):
     """어제와 오늘 통계 비교"""
-    data = svc.get_comparison(user_id)
+    ref_date = None
+    if today:
+        try:
+            ref_date = date_type.fromisoformat(today)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="today must be YYYY-MM-DD")
+    data = svc.get_comparison(user_id, ref_date)
     return StatsComparisonResponse(
         today=DailyStats(**data["today"]),
         yesterday=DailyStats(**data["yesterday"]),
@@ -37,13 +45,20 @@ def get_calendar(
 @router.get("/period", response_model=List[DailyStats])
 def get_period_stats(
     period: str = "daily",
+    today: Optional[str] = None,
     user_id: int = Depends(get_current_user_id),
     svc: StatsService = Depends(get_stats_service)
 ):
     """기간별 통계 조회 (daily/weekly/monthly)"""
     if period not in ("daily", "weekly", "monthly"):
         raise HTTPException(status_code=400, detail="period must be daily, weekly, or monthly")
-    return [DailyStats(**d) for d in svc.get_period_stats(user_id, period)]
+    ref_date = None
+    if today:
+        try:
+            ref_date = date_type.fromisoformat(today)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="today must be YYYY-MM-DD")
+    return [DailyStats(**d) for d in svc.get_period_stats(user_id, period, ref_date)]
 
 
 @router.get("/friends/{friend_id}", response_model=FriendStatsComparison)

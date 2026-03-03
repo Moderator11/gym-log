@@ -1,9 +1,12 @@
 import apiClient from "./client";
 import { DailyStats, CalendarDayInfo, StatsComparisonResponse, FriendStatsComparison } from "@/types/stats.types";
+import { getTodayDate } from "@/utils/time.util";
 
 export const statsApi = {
   getComparison: async (): Promise<StatsComparisonResponse> => {
-    const response = await apiClient.get<StatsComparisonResponse>("/stats/comparison");
+    const response = await apiClient.get<StatsComparisonResponse>("/stats/comparison", {
+      params: { today: getTodayDate() },
+    });
     return response.data;
   },
 
@@ -13,7 +16,9 @@ export const statsApi = {
   },
 
   getPeriodStats: async (period: "daily" | "weekly" | "monthly"): Promise<DailyStats[]> => {
-    const response = await apiClient.get<DailyStats[]>("/stats/period", { params: { period } });
+    const response = await apiClient.get<DailyStats[]>("/stats/period", {
+      params: { period, today: getTodayDate() },
+    });
     return response.data;
   },
 

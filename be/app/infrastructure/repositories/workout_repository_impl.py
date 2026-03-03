@@ -77,10 +77,10 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         db_session.start_time = session.start_time
         db_session.end_time = session.end_time
 
-        # 기존 운동 항목(및 연쇄 세트) 삭제
-        self.db.query(ExerciseModel).filter(
-            ExerciseModel.workout_session_id == session.id
-        ).delete()
+        # 기존 운동 항목 삭제 (ORM을 통해 cascade로 세트도 함께 삭제)
+        for db_ex in list(db_session.exercises):
+            self.db.delete(db_ex)
+        self.db.flush()
 
         # 새 운동 항목 추가
         for exercise in session.exercises:

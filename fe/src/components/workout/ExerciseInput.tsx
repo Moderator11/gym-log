@@ -77,8 +77,6 @@ export const ExerciseInput = ({
 
   const handleNameChange = (name: string) => onChange({ ...exercise, name });
 
-  const handleTypeChange = (exerciseType: ExerciseType) => onChange({ ...exercise, exercise_type: exerciseType });
-
   const addSet = () => {
     const prev = exercise.sets[exercise.sets.length - 1];
     if (exercise.exercise_type === "anaerobic") {
@@ -171,94 +169,61 @@ export const ExerciseInput = ({
     <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
       {/* 헤더: 운동 이름 선택 + 접기 + 삭제 */}
       <div className="flex gap-2 items-end p-3 sm:p-4">
-        <div className="flex-1 grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              운동 이름
-            </label>
-            {showNewInput ? (
-              <div className="flex gap-2">
-                <input
-                  autoFocus
-                  value={newName}
-                  onChange={(e) => {
-                    setNewName(e.target.value);
-                    handleNameChange(e.target.value);
-                  }}
-                  placeholder="운동 이름 직접 입력"
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowNewInput(false);
-                    setNewName("");
-                    handleNameChange("");
-                  }}
-                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
-                >
-                  목록
-                </button>
-              </div>
-            ) : (
-              <select
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                value={exercise.name}
-                onChange={(e) => {
-                  if (e.target.value === "__new__") {
-                    setShowNewInput(true);
-                    handleNameChange("");
-                  } else {
-                    const cat = categories.find(c => c.name === e.target.value);
-                    handleNameChange(e.target.value);
-                    if (cat) {
-                      handleTypeChange(cat.exercise_type);
-                    }
-                  }
-                }}
-              >
-                <option value="">운동 선택…</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-                <option value="__new__">+ 직접 입력</option>
-              </select>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              운동 타입
-            </label>
+        <div className="flex-1">
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            운동 이름
+          </label>
+          {showNewInput ? (
             <div className="flex gap-2">
+              <input
+                autoFocus
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  handleNameChange(e.target.value);
+                }}
+                placeholder="운동 이름 직접 입력"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
               <button
                 type="button"
-                onClick={() => handleTypeChange("anaerobic")}
-                className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
-                  exercise.exercise_type === "anaerobic"
-                    ? "bg-primary-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                onClick={() => {
+                  setShowNewInput(false);
+                  setNewName("");
+                  handleNameChange("");
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
               >
-                <Zap size={12} />
-                무산소
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTypeChange("aerobic")}
-                className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-lg text-sm font-medium transition-colors ${
-                  exercise.exercise_type === "aerobic"
-                    ? "bg-primary-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                <Wind size={12} />
-                유산소
+                목록
               </button>
             </div>
-          </div>
+          ) : (
+            <select
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+              value={exercise.name}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setShowNewInput(true);
+                  onChange({ ...exercise, name: "" });
+                } else {
+                  const cat = categories.find((c) => c.name === e.target.value);
+                  onChange({
+                    ...exercise,
+                    name: e.target.value,
+                    exercise_type: cat?.exercise_type ?? exercise.exercise_type,
+                  });
+                }
+              }}
+            >
+              <option value="">운동 선택…</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+              <option value="__new__">+ 직접 입력</option>
+            </select>
+          )}
         </div>
 
         {/* 접기 버튼 */}

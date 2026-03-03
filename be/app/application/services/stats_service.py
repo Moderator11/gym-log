@@ -39,10 +39,10 @@ class StatsService:
             "total_aerobic_duration": aerobic_duration,
         }
 
-    def get_comparison(self, user_id: int) -> dict:
+    def get_comparison(self, user_id: int, ref_date: Optional[date] = None) -> dict:
         """어제와 오늘의 통계 비교"""
         sessions = self.workout_repository.find_by_user_id(user_id)
-        today = date.today()
+        today = ref_date or date.today()
         yesterday = today - timedelta(days=1)
 
         today_stats = self._compute_daily(sessions, today)

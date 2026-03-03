@@ -9,7 +9,6 @@ import {
   getTodayDate,
   getCurrentLocalTime,
   localToUtcTime,
-  utcToLocalDate,
   utcToLocalTime,
 } from "@/utils/time.util";
 
@@ -23,9 +22,7 @@ interface WorkoutFormProps {
 export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workoutDate, setWorkoutDate] = useState(() =>
-    initialWorkout
-      ? utcToLocalDate(initialWorkout.workout_date, initialWorkout.start_time)
-      : getTodayDate()
+    initialWorkout ? initialWorkout.workout_date : getTodayDate()
   );
   const [startTime, setStartTime] = useState(() =>
     initialWorkout

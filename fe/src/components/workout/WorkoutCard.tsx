@@ -2,14 +2,14 @@ import { WorkoutSession } from "@/types/workout.types";
 import { Card } from "@/components/ui/Card";
 import { Calendar, Clock, Dumbbell } from "lucide-react";
 import { Link } from "react-router-dom";
-import { utcToLocalTime, utcToLocalDate } from "@/utils/time.util";
+import { utcToLocalTime } from "@/utils/time.util";
 
 interface WorkoutCardProps {
   workout: WorkoutSession;
 }
 
 export const WorkoutCard = ({ workout }: WorkoutCardProps) => {
-  const localDate = utcToLocalDate(workout.workout_date, workout.start_time);
+  const localDate = workout.workout_date;
   const localStart = utcToLocalTime(workout.workout_date, workout.start_time);
   const localEnd = utcToLocalTime(workout.workout_date, workout.end_time);
 
