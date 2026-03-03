@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./be
+    container_name: gym-log-be
+    ports:
+      - "8000:8000"
+    # volumes:
+    #   - ./be/data:/app/data # DB 파일 저장 위치
+    networks:
+      - gym-network
+
+  frontend:
+    build:
+      context: ./fe
+    container_name: gym-log-fe
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - gym-network
+
+networks:
+  gym-network:
