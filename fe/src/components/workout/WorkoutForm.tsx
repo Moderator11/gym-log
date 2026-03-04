@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ExerciseInput, ExerciseInputData } from "./ExerciseInput";
-import { Plus, Clock } from "lucide-react";
+import {
+  Plus,
+  Clock,
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
+  ArrowUpDown,
+} from "lucide-react";
 import { WorkoutCreateRequest, WorkoutSession } from "@/types/workout.types";
 import { useCategories } from "@/hooks/useCategories";
 import {
@@ -24,27 +31,33 @@ interface WorkoutFormProps {
   isCopy?: boolean;
 }
 
-export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: WorkoutFormProps) => {
+export const WorkoutForm = ({
+  onSubmit,
+  onCancel,
+  initialWorkout,
+  isCopy,
+}: WorkoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showReorderControls, setShowReorderControls] = useState(false);
 
   const [workoutDate, setWorkoutDate] = useState(() =>
-    !isCopy && initialWorkout ? initialWorkout.workout_date : getTodayDate()
+    !isCopy && initialWorkout ? initialWorkout.workout_date : getTodayDate(),
   );
   const [startTime, setStartTime] = useState(() =>
     !isCopy && initialWorkout
       ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.start_time)
-      : getCurrentLocalTime()
+      : getCurrentLocalTime(),
   );
   const [endTime, setEndTime] = useState(() =>
     !isCopy && initialWorkout
       ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.end_time)
-      : getCurrentLocalTime()
+      : getCurrentLocalTime(),
   );
   const [title, setTitle] = useState(() =>
-    !isCopy && initialWorkout ? (initialWorkout.title ?? "") : ""
+    !isCopy && initialWorkout ? (initialWorkout.title ?? "") : "",
   );
   const [memo, setMemo] = useState(() =>
-    !isCopy && initialWorkout ? (initialWorkout.memo ?? "") : ""
+    !isCopy && initialWorkout ? (initialWorkout.memo ?? "") : "",
   );
   const [exercises, setExercises] = useState<ExerciseInputData[]>(() =>
     initialWorkout
@@ -58,13 +71,19 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
             duration_seconds: s.duration_seconds,
           })),
         }))
-      : []
+      : [],
   );
 
   const { categories, createCategory } = useCategories();
 
+  // 드래그 순서 변경
+  const dragIndexRef = useRef<number | null>(null);
+
   const addExercise = () => {
-    setExercises([...exercises, { name: "", exercise_type: "anaerobic", sets: [] }]);
+    setExercises([
+      ...exercises,
+      { name: "", exercise_type: "anaerobic", sets: [] },
+    ]);
   };
 
   const removeExercise = (index: number) => {
@@ -77,6 +96,32 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
     setExercises(next);
   };
 
+  const handleDragStart = (index: number) => {
+    dragIndexRef.current = index;
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    const from = dragIndexRef.current;
+    if (from === null || from === index) return;
+    const next = [...exercises];
+    const [moved] = next.splice(from, 1);
+    next.splice(index, 0, moved);
+    dragIndexRef.current = index;
+    setExercises(next);
+  };
+
+  const handleDragEnd = () => {
+    dragIndexRef.current = null;
+  };
+
+  const moveExercise = (from: number, to: number) => {
+    const next = [...exercises];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setExercises(next);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -85,7 +130,11 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
       const existingNames = new Set(categories.map((c) => c.name));
       for (const ex of exercises) {
         if (ex.name && !existingNames.has(ex.name)) {
-          await createCategory({ name: ex.name, tags: [], exercise_type: ex.exercise_type });
+          await createCategory({
+            name: ex.name,
+            tags: [],
+            exercise_type: ex.exercise_type,
+          });
           existingNames.add(ex.name);
         }
       }
@@ -191,10 +240,26 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
             운동 목록{" "}
             <span className="text-sm font-normal text-gray-400">(선택)</span>
           </h3>
-          <Button type="button" onClick={addExercise} size="sm">
-            <Plus size={15} className="mr-1" />
-            운동 추가
-          </Button>
+          <div className="flex items-center gap-2">
+            {exercises.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setShowReorderControls((prev) => !prev)}
+                className={`flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg border transition-colors ${
+                  showReorderControls
+                    ? "border-primary-300 bg-primary-50 text-primary-700"
+                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                <ArrowUpDown size={12} />
+                순서
+              </button>
+            )}
+            <Button type="button" onClick={addExercise} size="sm">
+              <Plus size={15} className="mr-1" />
+              운동 추가
+            </Button>
+          </div>
         </div>
 
         {exercises.length === 0 && (
@@ -204,13 +269,53 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
         )}
 
         {exercises.map((exercise, index) => (
-          <ExerciseInput
+          <div
             key={index}
-            exercise={exercise}
-            categories={categories}
-            onChange={(ex) => updateExercise(index, ex)}
-            onRemove={() => removeExercise(index)}
-          />
+            draggable={showReorderControls}
+            onDragStart={() => showReorderControls && handleDragStart(index)}
+            onDragOver={(e) => showReorderControls && handleDragOver(e, index)}
+            onDragEnd={handleDragEnd}
+            className="flex gap-2 items-center group"
+          >
+            {showReorderControls && (
+              <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                <button
+                  type="button"
+                  disabled={index === 0}
+                  onClick={() => moveExercise(index, index - 1)}
+                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  aria-label="위로"
+                >
+                  <ChevronUp size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="p-0.5 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing"
+                  title="드래그하여 순서 변경"
+                  tabIndex={-1}
+                >
+                  <GripVertical size={15} />
+                </button>
+                <button
+                  type="button"
+                  disabled={index === exercises.length - 1}
+                  onClick={() => moveExercise(index, index + 1)}
+                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  aria-label="아래로"
+                >
+                  <ChevronDown size={15} />
+                </button>
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <ExerciseInput
+                exercise={exercise}
+                categories={categories}
+                onChange={(ex) => updateExercise(index, ex)}
+                onRemove={() => removeExercise(index)}
+              />
+            </div>
+          </div>
         ))}
       </div>
 
@@ -228,7 +333,9 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: Work
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
         />
         {memo.length > 0 && (
-          <p className="text-xs text-gray-400 text-right mt-0.5">{memo.length}/2000</p>
+          <p className="text-xs text-gray-400 text-right mt-0.5">
+            {memo.length}/2000
+          </p>
         )}
       </div>
 

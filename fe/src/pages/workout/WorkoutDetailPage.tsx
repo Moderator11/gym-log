@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWorkout, useWorkouts } from "@/hooks/useWorkouts";
 import { Card } from "@/components/ui/Card";
@@ -18,17 +18,73 @@ import {
   Timer,
   Copy,
   FileText,
+  GripVertical,
+  Check,
+  X,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
+import { Exercise } from "@/types/workout.types";
 import { utcToLocalTime } from "@/utils/time.util";
 
 export const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: workout, isLoading } = useWorkout(Number(id));
-  const { createWorkout, updateWorkout, deleteWorkout } = useWorkouts();
+  const { createWorkout, updateWorkout, deleteWorkout, reorderExercises, isReorderingExercises } = useWorkouts();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+
+  // 운동 항목 순서 편집
+  const [isExReorderMode, setIsExReorderMode] = useState(false);
+  const [orderedExercises, setOrderedExercises] = useState<Exercise[]>([]);
+  const exDragIndexRef = useRef<number | null>(null);
+
+  const enterExReorderMode = () => {
+    setOrderedExercises([...workout!.exercises]);
+    setIsExReorderMode(true);
+  };
+
+  const cancelExReorderMode = () => {
+    setIsExReorderMode(false);
+    setOrderedExercises([]);
+  };
+
+  const saveExReorder = async () => {
+    const items = orderedExercises
+      .filter((ex) => ex.id !== undefined)
+      .map((ex, i) => ({ id: ex.id as number, sort_order: i }));
+    await reorderExercises({ sessionId: Number(id), items });
+    setIsExReorderMode(false);
+    setOrderedExercises([]);
+  };
+
+  const handleExDragStart = (index: number) => {
+    exDragIndexRef.current = index;
+  };
+
+  const handleExDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    const from = exDragIndexRef.current;
+    if (from === null || from === index) return;
+    const next = [...orderedExercises];
+    const [moved] = next.splice(from, 1);
+    next.splice(index, 0, moved);
+    exDragIndexRef.current = index;
+    setOrderedExercises(next);
+  };
+
+  const handleExDragEnd = () => {
+    exDragIndexRef.current = null;
+  };
+
+  const moveExercise = (from: number, to: number) => {
+    const next = [...orderedExercises];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setOrderedExercises(next);
+  };
 
   const handleUpdate = async (data: any) => {
     await updateWorkout({ id: Number(id), data });
@@ -140,11 +196,84 @@ export const WorkoutDetailPage = () => {
 
         {/* 운동 목록 */}
         <div>
-          <h2 className="text-base font-semibold mb-3">운동 목록</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold">운동 목록</h2>
+            {!isExReorderMode && workout.exercises.length > 1 && (
+              <button
+                type="button"
+                onClick={enterExReorderMode}
+                className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-600 transition-colors px-2 py-1 rounded-lg hover:bg-primary-50"
+              >
+                <GripVertical size={13} />
+                순서 편집
+              </button>
+            )}
+            {isExReorderMode && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={cancelExReorderMode}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded-lg hover:bg-gray-100"
+                >
+                  <X size={13} />
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={saveExReorder}
+                  disabled={isReorderingExercises}
+                  className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium px-2 py-1 rounded-lg hover:bg-primary-50 disabled:opacity-50"
+                >
+                  <Check size={13} />
+                  저장
+                </button>
+              </div>
+            )}
+          </div>
+
           {workout.exercises.length === 0 ? (
             <p className="text-sm text-gray-400">등록된 운동이 없습니다.</p>
+          ) : isExReorderMode ? (
+            /* 드래그 순서 편집 모드 */
+            <div className="space-y-2">
+              {orderedExercises.map((exercise, idx) => (
+                <div
+                  key={exercise.id}
+                  draggable
+                  onDragStart={() => handleExDragStart(idx)}
+                  onDragOver={(e) => handleExDragOver(e, idx)}
+                  onDragEnd={handleExDragEnd}
+                  className="flex items-center gap-2 p-3 bg-white border border-gray-200 rounded-xl cursor-grab active:cursor-grabbing active:opacity-60 transition-all"
+                >
+                  <GripVertical size={16} className="text-gray-400 flex-shrink-0" />
+                  <span className="font-medium text-gray-900 flex-1 truncate">{exercise.name}</span>
+                  <span className="text-xs text-gray-400">{exercise.sets.length}세트</span>
+                  <div className="flex flex-col gap-0.5 flex-shrink-0">
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => moveExercise(idx, idx - 1)}
+                      className="p-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      aria-label="위로"
+                    >
+                      <ChevronUp size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={idx === orderedExercises.length - 1}
+                      onClick={() => moveExercise(idx, idx + 1)}
+                      className="p-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      aria-label="아래로"
+                    >
+                      <ChevronDown size={15} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="space-y-3">
+            /* 일반 보기 모드 */
+            <div className="space-y-2">
               {workout.exercises.map((exercise, idx) => {
                 const typeIconMap: Record<string, ReactNode> = {
                   anaerobic: <Zap size={14} />,
@@ -164,9 +293,9 @@ export const WorkoutDetailPage = () => {
                 return (
                   <div
                     key={idx}
-                    className="bg-gray-50 rounded-xl p-4 border border-gray-100"
+                    className="bg-gray-50 rounded-xl p-3 border border-gray-100"
                   >
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-1.5">
                       <h3 className="font-semibold text-gray-900">
                         {exercise.name}
                       </h3>
@@ -189,9 +318,7 @@ export const WorkoutDetailPage = () => {
                             </span>
                             {exercise.exercise_type === "aerobic" ? (
                               <>
-                                <span className="font-medium">
-                                  {set.distance_km} km
-                                </span>
+                                <span className="font-medium">{set.distance_km} km</span>
                                 <span className="text-gray-300">·</span>
                                 <span className="font-medium">
                                   {set.duration_seconds
@@ -200,9 +327,7 @@ export const WorkoutDetailPage = () => {
                                 </span>
                               </>
                             ) : exercise.exercise_type === "count" ? (
-                              <span className="font-medium">
-                                {set.reps} 회
-                              </span>
+                              <span className="font-medium">{set.reps} 회</span>
                             ) : exercise.exercise_type === "duration" ? (
                               <span className="font-medium">
                                 {set.duration_seconds
@@ -211,13 +336,9 @@ export const WorkoutDetailPage = () => {
                               </span>
                             ) : (
                               <>
-                                <span className="font-medium">
-                                  {set.weight_kg} kg
-                                </span>
+                                <span className="font-medium">{set.weight_kg} kg</span>
                                 <span className="text-gray-300">×</span>
-                                <span className="font-medium">
-                                  {set.reps} 회
-                                </span>
+                                <span className="font-medium">{set.reps} 회</span>
                               </>
                             )}
                           </div>

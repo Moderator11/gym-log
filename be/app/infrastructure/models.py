@@ -66,13 +66,12 @@ class WorkoutSessionModel(Base):
     workout_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    title = Column(String, nullable=True)    # 선택적 제목
-    memo = Column(String, nullable=True)     # 선택적 메모
-    sort_order = Column(Integer, nullable=True)  # 사용자 지정 순서 (NULL이면 날짜순)
+    title = Column(String, nullable=True)   # 선택적 제목
+    memo = Column(String, nullable=True)    # 선택적 메모
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("UserModel", back_populates="workout_sessions")
-    exercises = relationship("ExerciseModel", back_populates="workout_session", cascade="all, delete-orphan")
+    exercises = relationship("ExerciseModel", back_populates="workout_session", cascade="all, delete-orphan", order_by="ExerciseModel.sort_order")
 
 
 class ExerciseModel(Base):
@@ -83,6 +82,7 @@ class ExerciseModel(Base):
     workout_session_id = Column(Integer, ForeignKey("workout_sessions.id"), nullable=False)
     name = Column(String, nullable=False)
     exercise_type = Column(String, nullable=False, server_default="anaerobic")
+    sort_order = Column(Integer, nullable=True)  # 운동 항목 순서
 
     workout_session = relationship("WorkoutSessionModel", back_populates="exercises")
     sets = relationship("ExerciseSetModel", back_populates="exercise", cascade="all, delete-orphan", order_by="ExerciseSetModel.set_number")

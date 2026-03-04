@@ -36,9 +36,11 @@ export const useWorkouts = () => {
     },
   });
 
-  const reorderMutation = useMutation({
-    mutationFn: (items: { id: number; sort_order: number }[]) => workoutApi.reorder(items),
-    onSuccess: () => {
+  const reorderExercisesMutation = useMutation({
+    mutationFn: ({ sessionId, items }: { sessionId: number; items: { id: number; sort_order: number }[] }) =>
+      workoutApi.reorderExercises(sessionId, items),
+    onSuccess: (_, { sessionId }) => {
+      queryClient.invalidateQueries({ queryKey: ["workout", sessionId] });
       queryClient.invalidateQueries({ queryKey: ["workouts"] });
     },
   });
@@ -50,11 +52,11 @@ export const useWorkouts = () => {
     createWorkout: createMutation.mutateAsync,
     updateWorkout: updateMutation.mutateAsync,
     deleteWorkout: deleteMutation.mutateAsync,
-    reorderWorkouts: reorderMutation.mutateAsync,
+    reorderExercises: reorderExercisesMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    isReordering: reorderMutation.isPending,
+    isReorderingExercises: reorderExercisesMutation.isPending,
   };
 };
 

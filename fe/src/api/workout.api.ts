@@ -36,7 +36,10 @@ export const workoutApi = {
     await apiClient.delete(`/workouts/${id}`);
   },
 
-  reorder: async (items: { id: number; sort_order: number }[]): Promise<void> => {
-    await apiClient.patch("/workouts/reorder", { items });
+  reorderExercises: async (
+    sessionId: number,
+    items: { id: number; sort_order: number }[]
+  ): Promise<void> => {
+    await apiClient.patch(`/workouts/${sessionId}/exercises/reorder`, { items });
   },
 };

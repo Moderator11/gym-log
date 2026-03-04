@@ -4,7 +4,7 @@ from app.application.services.workout_service import WorkoutService
 from app.application.dtos.workout_dto import (
     WorkoutSessionCreateRequest,
     WorkoutSessionUpdateRequest,
-    WorkoutReorderRequest,
+    ExerciseReorderRequest,
     WorkoutSessionResponse,
     ExerciseResponse,
     ExerciseSetResponse
@@ -92,15 +92,20 @@ def delete_workout(
         )
 
 
-@router.patch("/reorder", status_code=status.HTTP_200_OK)
-def reorder_workouts(
-    request: WorkoutReorderRequest,
+
+@router.patch("/{session_id}/exercises/reorder", status_code=status.HTTP_200_OK)
+def reorder_exercises(
+    session_id: int,
+    request: ExerciseReorderRequest,
     user_id: int = Depends(get_current_user_id),
     workout_service: WorkoutService = Depends(get_workout_service)
 ):
-    """운동 세션 순서 일괄 변경"""
-    workout_service.reorder_sessions(user_id, request)
-    return {"message": "순서가 저장되었습니다"}
+    """운동 세션 내 운동 항목 순서 일괄 변경"""
+    try:
+        workout_service.reorder_exercises(session_id, user_id, request)
+        return {"message": "순서가 저장되었습니다"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 def _to_response(session) -> WorkoutSessionResponse:

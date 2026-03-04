@@ -32,6 +32,6 @@ class WorkoutRepository(ABC):
         pass
 
     @abstractmethod
-    def reorder(self, user_id: int, order_items: list) -> None:
-        """운동 세션 순서 일괄 업데이트 (order_items: [{id, sort_order}])"""
+    def reorder_exercises(self, session_id: int, order_items: list) -> None:
+        """운동 항목 순서 일괄 업데이트 (order_items: [{id, sort_order}])"""
         pass

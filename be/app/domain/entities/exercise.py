@@ -11,6 +11,7 @@ class Exercise:
     name: str
     sets: List[ExerciseSet] = field(default_factory=list)
     exercise_type: str = "anaerobic"
+    sort_order: int = 0
 
     def __str__(self):
         return f"{self.name} - {len(self.sets)}세트"

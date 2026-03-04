@@ -7,7 +7,7 @@ from app.domain.value_objects.exercise_set import ExerciseSet
 from app.application.dtos.workout_dto import (
     WorkoutSessionCreateRequest,
     WorkoutSessionUpdateRequest,
-    WorkoutReorderRequest,
+    ExerciseReorderRequest,
     ExerciseRequest
 )
 
@@ -25,8 +25,8 @@ class WorkoutService:
     ) -> WorkoutSession:
         """운동 세션 생성"""
         exercises = [
-            self._create_exercise(ex)
-            for ex in request.exercises
+            self._create_exercise(ex, idx)
+            for idx, ex in enumerate(request.exercises)
         ]
 
         session = WorkoutSession(
@@ -79,8 +79,8 @@ class WorkoutService:
             session.memo = request.memo if request.memo.strip() else None
         if request.exercises is not None:
             session.exercises = [
-                self._create_exercise(ex)
-                for ex in request.exercises
+                self._create_exercise(ex, idx)
+                for idx, ex in enumerate(request.exercises)
             ]
 
         return self.workout_repository.update(session)
@@ -90,12 +90,13 @@ class WorkoutService:
         session = self.get_workout_session(session_id, user_id)
         return self.workout_repository.delete(session_id)
 
-    def reorder_sessions(self, user_id: int, request: WorkoutReorderRequest) -> None:
-        """운동 세션 순서 일괄 업데이트 (본인 세션만 적용)"""
+    def reorder_exercises(self, session_id: int, user_id: int, request: ExerciseReorderRequest) -> None:
+        """운동 항목 순서 일괄 업데이트"""
+        self.get_workout_session(session_id, user_id)  # 권한 검증
         items = [{'id': item.id, 'sort_order': item.sort_order} for item in request.items]
-        self.workout_repository.reorder(user_id, items)
+        self.workout_repository.reorder_exercises(session_id, items)
 
-    def _create_exercise(self, request: ExerciseRequest) -> Exercise:
+    def _create_exercise(self, request: ExerciseRequest, sort_order: int = 0) -> Exercise:
         """운동 항목 생성 헬퍼"""
         sets = [
             ExerciseSet(
@@ -113,5 +114,6 @@ class WorkoutService:
             workout_session_id=None,
             name=request.name,
             exercise_type=request.exercise_type,
+            sort_order=sort_order,
             sets=sets
         )
