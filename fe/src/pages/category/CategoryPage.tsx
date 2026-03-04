@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Plus, Pencil, Trash2, Tag, X, Check, Zap, Wind } from "lucide-react";
+import { Plus, Pencil, Trash2, Tag, X, Check, Zap, Wind, Hash, Timer } from "lucide-react";
 
 /* ─────────────────────────── 태그 입력 서브 컴포넌트 ─────────────────────────── */
 interface TagInputProps {
@@ -123,31 +123,29 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
         />
         <div>
           <p className="text-xs text-gray-500 mb-2">운동 타입</p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setExerciseType("anaerobic")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
-                exerciseType === "anaerobic"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              <Zap size={14} />
-              무산소
-            </button>
-            <button
-              type="button"
-              onClick={() => setExerciseType("aerobic")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
-                exerciseType === "aerobic"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              <Wind size={14} />
-              유산소
-            </button>
+          <div className="grid grid-cols-2 gap-2">
+            {(
+              [
+                { value: "anaerobic", icon: <Zap size={14} />, label: "무산소" },
+                { value: "aerobic", icon: <Wind size={14} />, label: "유산소" },
+                { value: "count", icon: <Hash size={14} />, label: "갯수 카운트" },
+                { value: "duration", icon: <Timer size={14} />, label: "시간 기록" },
+              ] as const
+            ).map(({ value, icon, label }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setExerciseType(value)}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                  exerciseType === value
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {icon}
+                {label}
+              </button>
+            ))}
           </div>
         </div>
         <div>
@@ -167,8 +165,20 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
     );
   }
 
-  const typeIcon = category.exercise_type === "anaerobic" ? <Zap size={14} /> : <Wind size={14} />;
-  const typeLabel = category.exercise_type === "anaerobic" ? "무산소" : "유산소";
+  const typeIconMap: Record<string, ReactNode> = {
+    anaerobic: <Zap size={14} />,
+    aerobic: <Wind size={14} />,
+    count: <Hash size={14} />,
+    duration: <Timer size={14} />,
+  };
+  const typeLabelMap: Record<string, string> = {
+    anaerobic: "무산소",
+    aerobic: "유산소",
+    count: "갯수",
+    duration: "시간",
+  };
+  const typeIcon = typeIconMap[category.exercise_type] ?? <Zap size={14} />;
+  const typeLabel = typeLabelMap[category.exercise_type] ?? category.exercise_type;
 
   return (
     <div className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
@@ -322,31 +332,29 @@ export const CategoryPage = () => {
           />
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">운동 타입</p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setNewExerciseType("anaerobic")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
-                  newExerciseType === "anaerobic"
-                    ? "bg-primary-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                <Zap size={14} />
-                무산소
-              </button>
-              <button
-                type="button"
-                onClick={() => setNewExerciseType("aerobic")}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
-                  newExerciseType === "aerobic"
-                    ? "bg-primary-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                <Wind size={14} />
-                유산소
-              </button>
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  { value: "anaerobic", icon: <Zap size={14} />, label: "무산소" },
+                  { value: "aerobic", icon: <Wind size={14} />, label: "유산소" },
+                  { value: "count", icon: <Hash size={14} />, label: "갯수 카운트" },
+                  { value: "duration", icon: <Timer size={14} />, label: "시간 기록" },
+                ] as const
+              ).map(({ value, icon, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setNewExerciseType(value)}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
+                    newExerciseType === value
+                      ? "bg-primary-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {icon}
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
           <div>

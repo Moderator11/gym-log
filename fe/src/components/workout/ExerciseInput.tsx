@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
-import { Trash2, Plus, Minus, ChevronDown, ChevronUp, Zap, Wind } from "lucide-react";
+import { Trash2, Plus, Minus, ChevronDown, ChevronUp, Zap, Wind, Hash, Timer } from "lucide-react";
 import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 
 export interface SetInputData {
@@ -27,11 +27,12 @@ interface ExerciseInputProps {
 interface StepperProps {
   label: string;
   value: number;
-  step: number;
+  step: number;        // +/- 버튼 증감 단위
+  inputStep?: number;  // input[step] 속성 (직접 입력 단위, 기본값 = step)
   min: number;
   onChange: (v: number) => void;
 }
-const Stepper = ({ label, value, step, min, onChange }: StepperProps) => {
+const Stepper = ({ label, value, step, inputStep, min, onChange }: StepperProps) => {
   const dec = () => onChange(Math.max(min, parseFloat((value - step).toFixed(2))));
   const inc = () => onChange(parseFloat((value + step).toFixed(2)));
   return (
@@ -49,7 +50,7 @@ const Stepper = ({ label, value, step, min, onChange }: StepperProps) => {
           type="number"
           value={value}
           min={min}
-          step={step}
+          step={inputStep ?? step}
           onChange={(e) => onChange(parseFloat(e.target.value) || min)}
           className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
@@ -87,12 +88,29 @@ export const ExerciseInput = ({
           { weight_kg: prev?.weight_kg ?? 20, reps: prev?.reps ?? 10 },
         ],
       });
-    } else {
+    } else if (exercise.exercise_type === "aerobic") {
       onChange({
         ...exercise,
         sets: [
           ...exercise.sets,
           { distance_km: prev?.distance_km ?? 1, duration_seconds: prev?.duration_seconds ?? 300 },
+        ],
+      });
+    } else if (exercise.exercise_type === "count") {
+      onChange({
+        ...exercise,
+        sets: [
+          ...exercise.sets,
+          { reps: prev?.reps ?? 10 },
+        ],
+      });
+    } else {
+      // duration
+      onChange({
+        ...exercise,
+        sets: [
+          ...exercise.sets,
+          { duration_seconds: prev?.duration_seconds ?? 60 },
         ],
       });
     }
@@ -110,8 +128,20 @@ export const ExerciseInput = ({
 
   /* 접힌 상태 — 컴팩트 한 줄 */
   if (collapsed) {
-    const typeIcon = exercise.exercise_type === "anaerobic" ? <Zap size={12} /> : <Wind size={12} />;
-    const typeLabel = exercise.exercise_type === "anaerobic" ? "무산소" : "유산소";
+    const typeIconMap: Record<string, ReactNode> = {
+      anaerobic: <Zap size={12} />,
+      aerobic: <Wind size={12} />,
+      count: <Hash size={12} />,
+      duration: <Timer size={12} />,
+    };
+    const typeLabelMap: Record<string, string> = {
+      anaerobic: "무산소",
+      aerobic: "유산소",
+      count: "갯수",
+      duration: "시간",
+    };
+    const typeIcon = typeIconMap[exercise.exercise_type] ?? <Zap size={12} />;
+    const typeLabel = typeLabelMap[exercise.exercise_type] ?? exercise.exercise_type;
 
     return (
       <div className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 border border-indigo-200 rounded-xl">
@@ -293,7 +323,7 @@ export const ExerciseInput = ({
                     onChange={(v) => updateSet(idx, "reps", v)}
                   />
                 </>
-              ) : (
+              ) : exercise.exercise_type === "aerobic" ? (
                 <>
                   <Stepper
                     label="km"
@@ -307,10 +337,29 @@ export const ExerciseInput = ({
                     label="초"
                     value={set.duration_seconds ?? 300}
                     step={30}
-                    min={30}
+                    inputStep={1}
+                    min={1}
                     onChange={(v) => updateSet(idx, "duration_seconds", v)}
                   />
                 </>
+              ) : exercise.exercise_type === "count" ? (
+                <Stepper
+                  label="회"
+                  value={set.reps ?? 10}
+                  step={1}
+                  min={1}
+                  onChange={(v) => updateSet(idx, "reps", v)}
+                />
+              ) : (
+                /* duration */
+                <Stepper
+                  label="초"
+                  value={set.duration_seconds ?? 60}
+                  step={30}
+                  inputStep={1}
+                  min={1}
+                  onChange={(v) => updateSet(idx, "duration_seconds", v)}
+                />
               )}
             </div>
             <button

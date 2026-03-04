@@ -1,4 +1,4 @@
-export type ExerciseType = "anaerobic" | "aerobic";
+export type ExerciseType = "anaerobic" | "aerobic" | "count" | "duration";
 
 export interface ExerciseSet {
   set_number: number;

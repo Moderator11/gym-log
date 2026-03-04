@@ -41,25 +41,25 @@ export const WorkoutCard = ({ workout }: WorkoutCardProps) => {
             <div className="space-y-1">
               {workout.exercises.slice(0, 3).map((exercise, idx) => {
                 const firstSet = exercise.sets[0];
-                const isAerobic = exercise.exercise_type === "aerobic";
+                const type = exercise.exercise_type;
+
+                const setDetail = firstSet
+                  ? type === "aerobic"
+                    ? `${firstSet.distance_km}km · ${Math.floor((firstSet.duration_seconds ?? 0) / 60)}분`
+                    : type === "count"
+                    ? `${firstSet.reps}회`
+                    : type === "duration"
+                    ? `${Math.floor((firstSet.duration_seconds ?? 0) / 60)}분 ${(firstSet.duration_seconds ?? 0) % 60}초`
+                    : `${firstSet.weight_kg}kg × ${firstSet.reps}회`
+                  : null;
 
                 return (
                   <div key={idx} className="text-sm text-gray-500 flex items-center gap-1">
                     <span>·</span>
                     <span>{exercise.name}</span>
-                    {firstSet && (
-                      <span className="text-gray-400 flex items-center gap-1">
-                        ({exercise.sets.length}세트 /
-                        {isAerobic ? (
-                          <span>
-                            {firstSet.distance_km}km × {Math.floor((firstSet.duration_seconds ?? 0) / 60)}분
-                          </span>
-                        ) : (
-                          <span>
-                            {firstSet.weight_kg}kg × {firstSet.reps}회
-                          </span>
-                        )}
-                        )
+                    {firstSet && setDetail && (
+                      <span className="text-gray-400">
+                        ({exercise.sets.length}세트 / {setDetail})
                       </span>
                     )}
                   </div>

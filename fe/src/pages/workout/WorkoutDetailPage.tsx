@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useWorkout, useWorkouts } from "@/hooks/useWorkouts";
 import { Card } from "@/components/ui/Card";
@@ -14,6 +14,8 @@ import {
   ArrowLeft,
   Zap,
   Wind,
+  Hash,
+  Timer,
 } from "lucide-react";
 import { utcToLocalTime } from "@/utils/time.util";
 
@@ -113,9 +115,20 @@ export const WorkoutDetailPage = () => {
           ) : (
             <div className="space-y-3">
               {workout.exercises.map((exercise, idx) => {
-                const isAerobic = exercise.exercise_type === "aerobic";
-                const typeIcon = isAerobic ? <Wind size={14} /> : <Zap size={14} />;
-                const typeLabel = isAerobic ? "유산소" : "무산소";
+                const typeIconMap: Record<string, ReactNode> = {
+                  anaerobic: <Zap size={14} />,
+                  aerobic: <Wind size={14} />,
+                  count: <Hash size={14} />,
+                  duration: <Timer size={14} />,
+                };
+                const typeLabelMap: Record<string, string> = {
+                  anaerobic: "무산소",
+                  aerobic: "유산소",
+                  count: "갯수",
+                  duration: "시간",
+                };
+                const typeIcon = typeIconMap[exercise.exercise_type] ?? <Zap size={14} />;
+                const typeLabel = typeLabelMap[exercise.exercise_type] ?? exercise.exercise_type;
 
                 return (
                   <div
@@ -143,7 +156,7 @@ export const WorkoutDetailPage = () => {
                             <span className="text-gray-400 w-12 text-xs">
                               {setIdx + 1}세트
                             </span>
-                            {isAerobic ? (
+                            {exercise.exercise_type === "aerobic" ? (
                               <>
                                 <span className="font-medium">
                                   {set.distance_km} km
@@ -155,6 +168,16 @@ export const WorkoutDetailPage = () => {
                                     : "0초"}
                                 </span>
                               </>
+                            ) : exercise.exercise_type === "count" ? (
+                              <span className="font-medium">
+                                {set.reps} 회
+                              </span>
+                            ) : exercise.exercise_type === "duration" ? (
+                              <span className="font-medium">
+                                {set.duration_seconds
+                                  ? `${Math.floor(set.duration_seconds / 60)}분 ${set.duration_seconds % 60}초`
+                                  : "0초"}
+                              </span>
                             ) : (
                               <>
                                 <span className="font-medium">
