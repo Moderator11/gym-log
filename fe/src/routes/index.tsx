@@ -11,6 +11,7 @@ import { FriendWorkoutsPage } from "@/pages/friends/FriendWorkoutsPage";
 import { FriendHealthPage } from "@/pages/friends/FriendHealthPage";
 import { StatsPage } from "@/pages/stats/StatsPage";
 import { HealthPage } from "@/pages/health/HealthPage";
+import { TimerPage } from "@/pages/timer/TimerPage";
 
 export const AppRoutes = () => {
   return (
@@ -81,6 +82,14 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <StatsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/timer"
+            element={
+              <ProtectedRoute>
+                <TimerPage />
               </ProtectedRoute>
             }
           />
