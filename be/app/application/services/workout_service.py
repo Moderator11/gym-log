@@ -34,6 +34,8 @@ class WorkoutService:
             workout_date=request.workout_date,
             start_time=request.start_time,
             end_time=request.end_time,
+            title=request.title,
+            memo=request.memo,
             exercises=exercises
         )
 
@@ -69,6 +71,11 @@ class WorkoutService:
             session.start_time = request.start_time
         if request.end_time:
             session.end_time = request.end_time
+        # title/memo: None이면 그대로 유지, 빈 문자열 포함 명시적으로 전달된 값은 갱신
+        if request.title is not None:
+            session.title = request.title if request.title.strip() else None
+        if request.memo is not None:
+            session.memo = request.memo if request.memo.strip() else None
         if request.exercises is not None:
             session.exercises = [
                 self._create_exercise(ex)

@@ -16,6 +16,8 @@ import {
   Wind,
   Hash,
   Timer,
+  Copy,
+  FileText,
 } from "lucide-react";
 import { utcToLocalTime } from "@/utils/time.util";
 
@@ -23,9 +25,10 @@ export const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: workout, isLoading } = useWorkout(Number(id));
-  const { updateWorkout, deleteWorkout } = useWorkouts();
+  const { createWorkout, updateWorkout, deleteWorkout } = useWorkouts();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
 
   const handleUpdate = async (data: any) => {
     await updateWorkout({ id: Number(id), data });
@@ -34,6 +37,12 @@ export const WorkoutDetailPage = () => {
 
   const handleDelete = async () => {
     await deleteWorkout(Number(id));
+    navigate("/workouts");
+  };
+
+  const handleCopyCreate = async (data: any) => {
+    await createWorkout(data);
+    setIsCopyModalOpen(false);
     navigate("/workouts");
   };
 
@@ -70,6 +79,10 @@ export const WorkoutDetailPage = () => {
         <div className="flex justify-between items-start mb-6">
           <h1 className="text-xl font-bold">운동 상세</h1>
           <div className="flex gap-2">
+            <Button variant="secondary" size="sm" onClick={() => setIsCopyModalOpen(true)}>
+              <Copy size={15} className="mr-1" />
+              복사
+            </Button>
             <Button size="sm" onClick={() => setIsEditModalOpen(true)}>
               <Edit size={15} className="mr-1" />
               수정
@@ -84,6 +97,11 @@ export const WorkoutDetailPage = () => {
             </Button>
           </div>
         </div>
+
+        {/* 제목 */}
+        {workout.title && (
+          <p className="text-lg font-semibold text-gray-900 mb-4">{workout.title}</p>
+        )}
 
         {/* 세션 메타 정보 */}
         <div className="space-y-3 mb-6">
@@ -106,6 +124,19 @@ export const WorkoutDetailPage = () => {
             <span>{workout.exercises.length}개</span>
           </div>
         </div>
+
+        {/* 메모 */}
+        {workout.memo && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="text-primary-600 flex-shrink-0" size={18} />
+              <span className="text-sm font-medium text-gray-500">메모</span>
+            </div>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 rounded-lg p-3 border border-gray-100">
+              {workout.memo}
+            </p>
+          </div>
+        )}
 
         {/* 운동 목록 */}
         <div>
@@ -210,6 +241,19 @@ export const WorkoutDetailPage = () => {
           initialWorkout={workout}
           onSubmit={handleUpdate}
           onCancel={() => setIsEditModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isCopyModalOpen}
+        onClose={() => setIsCopyModalOpen(false)}
+        title="운동 기록 복사"
+      >
+        <WorkoutForm
+          initialWorkout={workout}
+          isCopy={true}
+          onSubmit={handleCopyCreate}
+          onCancel={() => setIsCopyModalOpen(false)}
         />
       </Modal>
 

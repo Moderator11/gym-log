@@ -40,6 +40,8 @@ class WorkoutSessionCreateRequest(BaseModel):
     workout_date: date
     start_time: time
     end_time: time
+    title: Optional[str] = Field(default=None, max_length=100)
+    memo: Optional[str] = Field(default=None, max_length=2000)
     exercises: List[ExerciseRequest] = Field(default_factory=list)
 
 
@@ -48,6 +50,8 @@ class WorkoutSessionUpdateRequest(BaseModel):
     workout_date: Optional[date] = None
     start_time: Optional[time] = None
     end_time: Optional[time] = None
+    title: Optional[str] = Field(default=None, max_length=100)
+    memo: Optional[str] = Field(default=None, max_length=2000)
     exercises: Optional[List[ExerciseRequest]] = None
 
 
@@ -58,6 +62,8 @@ class WorkoutSessionResponse(BaseModel):
     workout_date: date
     start_time: time
     end_time: time
+    title: Optional[str] = None
+    memo: Optional[str] = None
     duration_minutes: int
     exercises: List[ExerciseResponse]
     created_at: str

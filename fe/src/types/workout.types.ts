@@ -21,6 +21,8 @@ export interface WorkoutSession {
   workout_date: string;   // UTC 날짜 (YYYY-MM-DD)
   start_time: string;     // UTC 시각 (HH:MM:SS)
   end_time: string;       // UTC 시각 (HH:MM:SS)
+  title?: string | null;
+  memo?: string | null;
   duration_minutes: number;
   exercises: Exercise[];
   created_at: string;
@@ -38,6 +40,8 @@ export interface WorkoutCreateRequest {
   workout_date: string;   // UTC 날짜
   start_time: string;     // UTC 시각 (HH:MM:SS)
   end_time: string;       // UTC 시각 (HH:MM:SS)
+  title?: string | null;
+  memo?: string | null;
   exercises: {
     name: string;
     exercise_type: ExerciseType;

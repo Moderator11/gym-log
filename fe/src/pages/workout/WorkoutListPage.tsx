@@ -5,14 +5,21 @@ import { WorkoutForm } from "@/components/workout/WorkoutForm";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Plus } from "lucide-react";
+import { WorkoutSession } from "@/types/workout.types";
 
 export const WorkoutListPage = () => {
   const { workouts, isLoading, createWorkout } = useWorkouts();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copySource, setCopySource] = useState<WorkoutSession | null>(null);
 
   const handleCreate = async (data: any) => {
     await createWorkout(data);
     setIsModalOpen(false);
+  };
+
+  const handleCopyCreate = async (data: any) => {
+    await createWorkout(data);
+    setCopySource(null);
   };
 
   if (isLoading) {
@@ -45,7 +52,11 @@ export const WorkoutListPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {workouts.map((workout) => (
-            <WorkoutCard key={workout.id} workout={workout} />
+            <WorkoutCard
+              key={workout.id}
+              workout={workout}
+              onCopy={() => setCopySource(workout)}
+            />
           ))}
         </div>
       )}
@@ -59,6 +70,21 @@ export const WorkoutListPage = () => {
           onSubmit={handleCreate}
           onCancel={() => setIsModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={copySource !== null}
+        onClose={() => setCopySource(null)}
+        title="운동 기록 복사"
+      >
+        {copySource && (
+          <WorkoutForm
+            initialWorkout={copySource}
+            isCopy={true}
+            onSubmit={handleCopyCreate}
+            onCancel={() => setCopySource(null)}
+          />
+        )}
       </Modal>
     </div>
   );

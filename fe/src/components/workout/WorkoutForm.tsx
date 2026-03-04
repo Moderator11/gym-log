@@ -17,22 +17,34 @@ interface WorkoutFormProps {
   onCancel: () => void;
   /** 수정 모드일 때 기존 데이터를 전달합니다. */
   initialWorkout?: WorkoutSession;
+  /**
+   * 복사 모드: true이면 initialWorkout의 운동 목록만 가져오고,
+   * 날짜·시간·제목·메모는 빈 값(오늘/현재)으로 초기화합니다.
+   */
+  isCopy?: boolean;
 }
 
-export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormProps) => {
+export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout, isCopy }: WorkoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [workoutDate, setWorkoutDate] = useState(() =>
-    initialWorkout ? initialWorkout.workout_date : getTodayDate()
+    !isCopy && initialWorkout ? initialWorkout.workout_date : getTodayDate()
   );
   const [startTime, setStartTime] = useState(() =>
-    initialWorkout
+    !isCopy && initialWorkout
       ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.start_time)
       : getCurrentLocalTime()
   );
   const [endTime, setEndTime] = useState(() =>
-    initialWorkout
+    !isCopy && initialWorkout
       ? utcToLocalTime(initialWorkout.workout_date, initialWorkout.end_time)
       : getCurrentLocalTime()
+  );
+  const [title, setTitle] = useState(() =>
+    !isCopy && initialWorkout ? (initialWorkout.title ?? "") : ""
+  );
+  const [memo, setMemo] = useState(() =>
+    !isCopy && initialWorkout ? (initialWorkout.memo ?? "") : ""
   );
   const [exercises, setExercises] = useState<ExerciseInputData[]>(() =>
     initialWorkout
@@ -82,6 +94,8 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
         workout_date: workoutDate,
         start_time: localToUtcTime(workoutDate, startTime),
         end_time: localToUtcTime(workoutDate, endTime),
+        title: title.trim() || null,
+        memo: memo.trim() || null,
         exercises: exercises.map((ex) => ({
           name: ex.name,
           exercise_type: ex.exercise_type,
@@ -104,6 +118,15 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 제목 */}
+      <Input
+        label="제목 (선택)"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="예: 가슴·삼두 데이"
+        maxLength={100}
+      />
+
       {/* 날짜 / 시간 */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Input
@@ -189,6 +212,24 @@ export const WorkoutForm = ({ onSubmit, onCancel, initialWorkout }: WorkoutFormP
             onRemove={() => removeExercise(index)}
           />
         ))}
+      </div>
+
+      {/* 메모 */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          메모 (선택)
+        </label>
+        <textarea
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="오늘 운동에 대한 메모를 남겨보세요."
+          maxLength={2000}
+          rows={3}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+        />
+        {memo.length > 0 && (
+          <p className="text-xs text-gray-400 text-right mt-0.5">{memo.length}/2000</p>
+        )}
       </div>
 
       <div className="flex gap-3 justify-end pt-2">

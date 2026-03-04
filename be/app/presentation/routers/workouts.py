@@ -118,6 +118,8 @@ def _to_response(session) -> WorkoutSessionResponse:
         workout_date=session.workout_date,
         start_time=session.start_time,
         end_time=session.end_time,
+        title=session.title,
+        memo=session.memo,
         duration_minutes=session.get_duration_minutes(),
         exercises=exercises,
         created_at=session.created_at.isoformat()

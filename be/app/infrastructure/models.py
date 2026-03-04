@@ -66,6 +66,8 @@ class WorkoutSessionModel(Base):
     workout_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
+    title = Column(String, nullable=True)   # 선택적 제목
+    memo = Column(String, nullable=True)    # 선택적 메모
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("UserModel", back_populates="workout_sessions")

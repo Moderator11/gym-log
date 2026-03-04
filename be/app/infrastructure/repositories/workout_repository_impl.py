@@ -19,6 +19,8 @@ class WorkoutRepositoryImpl(WorkoutRepository):
             workout_date=session.workout_date,
             start_time=session.start_time,
             end_time=session.end_time,
+            title=session.title,
+            memo=session.memo,
             created_at=session.created_at
         )
         self.db.add(db_session)
@@ -76,6 +78,8 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         db_session.workout_date = session.workout_date
         db_session.start_time = session.start_time
         db_session.end_time = session.end_time
+        db_session.title = session.title
+        db_session.memo = session.memo
 
         # 기존 운동 항목 삭제 (ORM을 통해 cascade로 세트도 함께 삭제)
         for db_ex in list(db_session.exercises):
@@ -148,6 +152,8 @@ class WorkoutRepositoryImpl(WorkoutRepository):
             workout_date=db_session.workout_date,
             start_time=db_session.start_time,
             end_time=db_session.end_time,
+            title=getattr(db_session, 'title', None),
+            memo=getattr(db_session, 'memo', None),
             exercises=exercises,
             created_at=db_session.created_at
         )

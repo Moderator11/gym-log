@@ -23,5 +23,7 @@ def get_db():
 
 
 def init_db():
-    """데이터베이스 초기화"""
+    """데이터베이스 초기화 및 마이그레이션"""
     Base.metadata.create_all(bind=engine)
+    from app.infrastructure.migrations import run as run_migrations
+    run_migrations()
