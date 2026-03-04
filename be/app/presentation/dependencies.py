@@ -62,9 +62,10 @@ def get_friendship_repository(db: Session = Depends(get_db)) -> FriendshipReposi
 def get_friendship_service(
     friendship_repository: FriendshipRepositoryImpl = Depends(get_friendship_repository),
     user_repository: UserRepositoryImpl = Depends(get_user_repository),
+    workout_repository: WorkoutRepositoryImpl = Depends(get_workout_repository),
 ) -> FriendshipService:
     """친구 서비스 의존성"""
-    return FriendshipService(friendship_repository, user_repository)
+    return FriendshipService(friendship_repository, user_repository, workout_repository)
 
 
 def get_stats_service(

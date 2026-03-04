@@ -1,15 +1,24 @@
-from typing import List
+from typing import List, Optional
+from datetime import date, timedelta
+import calendar as cal_module
 from app.domain.entities.friendship import Friendship
 from app.domain.repositories.friendship_repository import FriendshipRepository
 from app.domain.repositories.user_repository import UserRepository
+from app.domain.repositories.workout_repository import WorkoutRepository
 
 
 class FriendshipService:
     """친구 시스템 서비스"""
 
-    def __init__(self, friendship_repository: FriendshipRepository, user_repository: UserRepository):
+    def __init__(
+        self,
+        friendship_repository: FriendshipRepository,
+        user_repository: UserRepository,
+        workout_repository: Optional[WorkoutRepository] = None,
+    ):
         self.friendship_repository = friendship_repository
         self.user_repository = user_repository
+        self.workout_repository = workout_repository
 
     def search_users(self, query: str, current_user_id: int) -> list:
         """username으로 유저 검색 (자기 자신 제외)"""
@@ -97,6 +106,74 @@ class FriendshipService:
         """두 사용자가 친구인지 확인"""
         f = self.friendship_repository.find_by_users(user_id, other_id)
         return f is not None and f.status == "accepted"
+
+    def remove_friend(self, user_id: int, friendship_id: int) -> None:
+        """친구 관계 삭제 (요청자 또는 수신자 본인만 가능)"""
+        accepted = self.friendship_repository.find_accepted_for_user(user_id)
+        target = next((f for f in accepted if f.id == friendship_id), None)
+        if not target:
+            raise ValueError("친구 관계를 찾을 수 없습니다")
+        self.friendship_repository.delete(friendship_id)
+
+    def get_rankings(self, user_id: int, period: str, exercise_type: str) -> list:
+        """공유 중인 친구 + 본인의 운동 볼륨/거리 Top 10 랭킹"""
+        if self.workout_repository is None:
+            return []
+
+        today = date.today()
+        if period == "day":
+            start_date, end_date = today, today
+        elif period == "week":
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=6)
+        else:  # month
+            start_date = today.replace(day=1)
+            _, last_day = cal_module.monthrange(today.year, today.month)
+            end_date = today.replace(day=last_day)
+
+        # 공유 활성화된 친구 목록 (본인 포함)
+        accepted = self.friendship_repository.find_accepted_for_user(user_id)
+        candidate_ids = [user_id]
+        for f in accepted:
+            fid = f.addressee_id if f.requester_id == user_id else f.requester_id
+            friend = self.user_repository.find_by_id(fid)
+            if friend and friend.sharing_enabled:
+                candidate_ids.append(fid)
+
+        results = []
+        for uid in candidate_ids:
+            sessions = self.workout_repository.find_by_user_id(uid)
+            sessions = [s for s in sessions if start_date <= s.workout_date <= end_date]
+
+            if exercise_type == "anaerobic":
+                value = sum(
+                    (s.weight_kg or 0) * (s.reps or 0)
+                    for session in sessions
+                    for ex in session.exercises
+                    if ex.exercise_type == "anaerobic"
+                    for s in ex.sets
+                )
+            else:  # aerobic
+                value = sum(
+                    (s.distance_km or 0)
+                    for session in sessions
+                    for ex in session.exercises
+                    if ex.exercise_type == "aerobic"
+                    for s in ex.sets
+                )
+
+            user = self.user_repository.find_by_id(uid)
+            if user:
+                results.append({
+                    "user_id": uid,
+                    "username": user.username,
+                    "display_name": user.display_name or user.username,
+                    "value": round(value, 2),
+                    "is_me": uid == user_id,
+                })
+
+        results.sort(key=lambda x: x["value"], reverse=True)
+        return [{"rank": i + 1, **r} for i, r in enumerate(results[:10])]
 
     def get_suggestions(self, user_id: int, limit: int = 5) -> list:
         """친구 추천: 자신, 이미 친구, 요청 중인 유저를 제외한 랜덤 사용자"""

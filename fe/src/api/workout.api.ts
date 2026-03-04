@@ -35,4 +35,8 @@ export const workoutApi = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/workouts/${id}`);
   },
+
+  reorder: async (items: { id: number; sort_order: number }[]): Promise<void> => {
+    await apiClient.patch("/workouts/reorder", { items });
+  },
 };

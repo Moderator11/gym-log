@@ -67,6 +67,15 @@ class FriendshipRepositoryImpl(FriendshipRepository):
         self.db.refresh(db_f)
         return self._to_domain(db_f)
 
+    def delete(self, friendship_id: int) -> bool:
+        """친구 관계 삭제"""
+        db_f = self.db.query(FriendshipModel).filter(FriendshipModel.id == friendship_id).first()
+        if not db_f:
+            return False
+        self.db.delete(db_f)
+        self.db.commit()
+        return True
+
     def _to_domain(self, db_f: FriendshipModel) -> Friendship:
         return Friendship(
             id=db_f.id,

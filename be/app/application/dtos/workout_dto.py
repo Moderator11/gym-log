@@ -67,3 +67,14 @@ class WorkoutSessionResponse(BaseModel):
     duration_minutes: int
     exercises: List[ExerciseResponse]
     created_at: str
+
+
+class WorkoutReorderItem(BaseModel):
+    """순서 변경 항목"""
+    id: int
+    sort_order: int
+
+
+class WorkoutReorderRequest(BaseModel):
+    """운동 세션 순서 일괄 변경 요청"""
+    items: List[WorkoutReorderItem]

@@ -1,21 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFriends } from "@/hooks/useFriends";
+import { useFriends, useRankings } from "@/hooks/useFriends";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { UserSearchResult } from "@/types/friend.types";
+import { UserSearchResult, RankingPeriod, RankingType } from "@/types/friend.types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Search, UserPlus, Check, X, Share2, EyeOff, Activity } from "lucide-react";
+import { Search, UserPlus, Check, X, Share2, EyeOff, Activity, Trophy, UserMinus } from "lucide-react";
 
 export const FriendsPage = () => {
   const navigate = useNavigate();
-  const { friends, pendingRequests, suggestions, sendRequest, respondToRequest, searchUsers } = useFriends();
+  const { friends, pendingRequests, suggestions, sendRequest, respondToRequest, removeFriend, searchUsers } = useFriends();
   const { settings, updateSharing, updateHealthSharing, isUpdating } = useUserSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [sendingRequest, setSendingRequest] = useState<number | null>(null);
+  const [removingFriend, setRemovingFriend] = useState<number | null>(null);
+  const [rankingPeriod, setRankingPeriod] = useState<RankingPeriod>("week");
+  const [rankingType, setRankingType] = useState<RankingType>("anaerobic");
+  const rankingsQuery = useRankings(rankingPeriod, rankingType);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +60,18 @@ export const FriendsPage = () => {
       await respondToRequest({ id: friendshipId, action });
     } catch (error) {
       console.error("Failed to respond:", error);
+    }
+  };
+
+  const handleRemoveFriend = async (friendshipId: number) => {
+    if (!window.confirm("정말 친구를 삭제하시겠습니까?")) return;
+    setRemovingFriend(friendshipId);
+    try {
+      await removeFriend(friendshipId);
+    } catch (error) {
+      console.error("Failed to remove friend:", error);
+    } finally {
+      setRemovingFriend(null);
     }
   };
 
@@ -297,7 +313,7 @@ export const FriendsPage = () => {
                     <p className="text-xs text-gray-400 mt-0.5">운동 공유 비활성화</p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   {friend.sharing_enabled && (
                     <Button
                       size="sm"
@@ -317,10 +333,109 @@ export const FriendsPage = () => {
                       건강 보기
                     </Button>
                   )}
+                  <button
+                    type="button"
+                    title="친구 삭제"
+                    disabled={removingFriend === friend.friendship_id}
+                    onClick={() => handleRemoveFriend(friend.friendship_id)}
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <UserMinus size={15} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+        )}
+      </Card>
+      {/* 친구 랭킹 */}
+      <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="text-yellow-500" size={18} />
+          <h2 className="font-semibold text-gray-800">친구 랭킹 (Top 10)</h2>
+        </div>
+
+        {/* 필터 */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+            {(["day", "week", "month"] as RankingPeriod[]).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setRankingPeriod(p)}
+                className={`px-3 py-1.5 transition-colors ${
+                  rankingPeriod === p
+                    ? "bg-primary-600 text-white"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {p === "day" ? "오늘" : p === "week" ? "이번 주" : "이번 달"}
+              </button>
+            ))}
+          </div>
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+            {(["anaerobic", "aerobic"] as RankingType[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setRankingType(t)}
+                className={`px-3 py-1.5 transition-colors ${
+                  rankingType === t
+                    ? "bg-primary-600 text-white"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {t === "anaerobic" ? "무산소 볼륨" : "유산소 거리"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 랭킹 목록 */}
+        {rankingsQuery.isLoading ? (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" />
+          </div>
+        ) : !rankingsQuery.data || rankingsQuery.data.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-6">
+            공유 중인 친구가 없거나 해당 기간에 운동 기록이 없습니다
+          </p>
+        ) : (
+          <ol className="space-y-2">
+            {rankingsQuery.data.map((entry) => (
+              <li
+                key={entry.user_id}
+                className={`flex items-center gap-3 p-3 rounded-lg ${
+                  entry.is_me ? "bg-primary-50 border border-primary-100" : "bg-gray-50"
+                }`}
+              >
+                <span
+                  className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0 ${
+                    entry.rank === 1
+                      ? "bg-yellow-400 text-white"
+                      : entry.rank === 2
+                      ? "bg-gray-300 text-gray-700"
+                      : entry.rank === 3
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}
+                >
+                  {entry.rank}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">
+                    {entry.display_name}
+                    {entry.is_me && <span className="ml-1 text-xs text-primary-600 font-normal">(나)</span>}
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-gray-700 tabular-nums flex-shrink-0">
+                  {rankingType === "anaerobic"
+                    ? `${entry.value.toLocaleString()} kg·회`
+                    : `${entry.value.toFixed(2)} km`}
+                </span>
+              </li>
+            ))}
+          </ol>
         )}
       </Card>
     </div>

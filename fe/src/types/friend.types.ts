@@ -25,3 +25,15 @@ export interface UserSuggestion {
   username: string;
   display_name: string;
 }
+
+export type RankingPeriod = "day" | "week" | "month";
+export type RankingType = "anaerobic" | "aerobic";
+
+export interface RankingEntry {
+  rank: number;
+  user_id: number;
+  username: string;
+  display_name: string;
+  value: number;
+  is_me: boolean;
+}

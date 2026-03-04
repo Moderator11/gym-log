@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { friendApi } from "@/api/friend.api";
+import { RankingPeriod, RankingType } from "@/types/friend.types";
 import { useCallback } from "react";
 
 export const useFriends = () => {
@@ -31,6 +32,13 @@ export const useFriends = () => {
     },
   });
 
+  const removeFriendMutation = useMutation({
+    mutationFn: (friendshipId: number) => friendApi.removeFriend(friendshipId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+    },
+  });
+
   const suggestionsQuery = useQuery({
     queryKey: ["friends", "suggestions"],
     queryFn: friendApi.getSuggestions,
@@ -51,9 +59,17 @@ export const useFriends = () => {
     isLoading: friendsQuery.isLoading,
     sendRequest: sendRequestMutation.mutateAsync,
     respondToRequest: respondMutation.mutateAsync,
+    removeFriend: removeFriendMutation.mutateAsync,
     isSending: sendRequestMutation.isPending,
     searchUsers,
   };
+};
+
+export const useRankings = (period: RankingPeriod, type: RankingType) => {
+  return useQuery({
+    queryKey: ["friend-rankings", period, type],
+    queryFn: () => friendApi.getRankings(period, type),
+  });
 };
 
 export const useFriendWorkouts = (friendId: number | null) => {

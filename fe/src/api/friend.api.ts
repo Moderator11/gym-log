@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import { FriendInfo, PendingRequest, UserSearchResult, UserSuggestion } from "@/types/friend.types";
+import { FriendInfo, PendingRequest, UserSearchResult, UserSuggestion, RankingEntry, RankingPeriod, RankingType } from "@/types/friend.types";
 import { WorkoutSession } from "@/types/workout.types";
 
 export const friendApi = {
@@ -33,6 +33,17 @@ export const friendApi = {
 
   getSuggestions: async (): Promise<UserSuggestion[]> => {
     const response = await apiClient.get<UserSuggestion[]>("/friends/suggestions");
+    return response.data;
+  },
+
+  removeFriend: async (friendshipId: number): Promise<void> => {
+    await apiClient.delete(`/friends/${friendshipId}`);
+  },
+
+  getRankings: async (period: RankingPeriod, type: RankingType): Promise<RankingEntry[]> => {
+    const response = await apiClient.get<RankingEntry[]>("/friends/rankings", {
+      params: { period, type },
+    });
     return response.data;
   },
 };

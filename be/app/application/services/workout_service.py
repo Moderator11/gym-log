@@ -7,6 +7,7 @@ from app.domain.value_objects.exercise_set import ExerciseSet
 from app.application.dtos.workout_dto import (
     WorkoutSessionCreateRequest,
     WorkoutSessionUpdateRequest,
+    WorkoutReorderRequest,
     ExerciseRequest
 )
 
@@ -88,6 +89,11 @@ class WorkoutService:
         """운동 세션 삭제"""
         session = self.get_workout_session(session_id, user_id)
         return self.workout_repository.delete(session_id)
+
+    def reorder_sessions(self, user_id: int, request: WorkoutReorderRequest) -> None:
+        """운동 세션 순서 일괄 업데이트 (본인 세션만 적용)"""
+        items = [{'id': item.id, 'sort_order': item.sort_order} for item in request.items]
+        self.workout_repository.reorder(user_id, items)
 
     def _create_exercise(self, request: ExerciseRequest) -> Exercise:
         """운동 항목 생성 헬퍼"""

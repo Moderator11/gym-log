@@ -9,6 +9,7 @@ from app.application.dtos.friend_dto import (
     PendingRequestInfo,
     UserSearchResult,
     UserSuggestion,
+    RankingEntry,
 )
 from app.application.dtos.workout_dto import WorkoutSessionResponse
 from app.presentation.dependencies import (
@@ -85,6 +86,36 @@ def get_friends(
 ):
     """친구 목록"""
     return [FriendInfo(**f) for f in svc.get_friends(user_id)]
+
+
+@router.delete("/{friendship_id}", status_code=status.HTTP_200_OK)
+def remove_friend(
+    friendship_id: int,
+    user_id: int = Depends(get_current_user_id),
+    svc: FriendshipService = Depends(get_friendship_service)
+):
+    """친구 관계 삭제"""
+    try:
+        svc.remove_friend(user_id, friendship_id)
+        return {"message": "친구가 삭제되었습니다"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get("/rankings", response_model=List[RankingEntry])
+def get_rankings(
+    period: str = "week",
+    type: str = "anaerobic",
+    user_id: int = Depends(get_current_user_id),
+    svc: FriendshipService = Depends(get_friendship_service)
+):
+    """공유 중인 친구 + 본인의 운동 볼륨/거리 Top 10 랭킹"""
+    if period not in ("day", "week", "month"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="period는 day|week|month 중 하나여야 합니다")
+    if type not in ("anaerobic", "aerobic"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="type은 anaerobic|aerobic 중 하나여야 합니다")
+    entries = svc.get_rankings(user_id, period, type)
+    return [RankingEntry(**e) for e in entries]
 
 
 @router.get("/{friend_id}/workouts", response_model=List[WorkoutSessionResponse])

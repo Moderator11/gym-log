@@ -41,3 +41,13 @@ class UserSuggestion(BaseModel):
     id: int
     username: str
     display_name: str
+
+
+class RankingEntry(BaseModel):
+    """랭킹 항목"""
+    rank: int
+    user_id: int
+    username: str
+    display_name: str
+    value: float   # 무산소: kg·회(볼륨), 유산소: km(거리)
+    is_me: bool

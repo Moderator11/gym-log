@@ -35,4 +35,7 @@ def run() -> None:
         if not _column_exists(conn, "workout_sessions", "memo"):
             conn.execute(text("ALTER TABLE workout_sessions ADD COLUMN memo TEXT"))
 
+        if not _column_exists(conn, "workout_sessions", "sort_order"):
+            conn.execute(text("ALTER TABLE workout_sessions ADD COLUMN sort_order INTEGER"))
+
         conn.commit()

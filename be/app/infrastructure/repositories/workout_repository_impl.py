@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy import nullslast
 from sqlalchemy.orm import Session
 from app.domain.entities.workout_session import WorkoutSession
 from app.domain.entities.exercise import Exercise
@@ -63,7 +64,10 @@ class WorkoutRepositoryImpl(WorkoutRepository):
     def find_by_user_id(self, user_id: int) -> List[WorkoutSession]:
         db_sessions = self.db.query(WorkoutSessionModel).filter(
             WorkoutSessionModel.user_id == user_id
-        ).order_by(WorkoutSessionModel.workout_date.desc()).all()
+        ).order_by(
+            nullslast(WorkoutSessionModel.sort_order.asc()),
+            WorkoutSessionModel.workout_date.desc(),
+        ).all()
 
         return [self._to_domain(s) for s in db_sessions]
 
@@ -122,6 +126,17 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         self.db.delete(db_session)
         self.db.commit()
         return True
+
+    def reorder(self, user_id: int, order_items: list) -> None:
+        """운동 세션 순서 일괄 업데이트"""
+        for item in order_items:
+            db_session = self.db.query(WorkoutSessionModel).filter(
+                WorkoutSessionModel.id == item["id"],
+                WorkoutSessionModel.user_id == user_id,
+            ).first()
+            if db_session:
+                db_session.sort_order = item["sort_order"]
+        self.db.commit()
 
     def _to_domain(self, db_session: WorkoutSessionModel) -> WorkoutSession:
         """DB 모델을 도메인 엔티티로 변환"""

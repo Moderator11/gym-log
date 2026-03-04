@@ -30,3 +30,8 @@ class WorkoutRepository(ABC):
     def delete(self, session_id: int) -> bool:
         """세션 삭제"""
         pass
+
+    @abstractmethod
+    def reorder(self, user_id: int, order_items: list) -> None:
+        """운동 세션 순서 일괄 업데이트 (order_items: [{id, sort_order}])"""
+        pass
