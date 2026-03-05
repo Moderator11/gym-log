@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Exercise } from "@/types/workout.types";
 import { utcToLocalTime } from "@/utils/time.util";
+import { RestTimerModal } from "@/components/workout/RestTimerModal";
 
 export const WorkoutDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ export const WorkoutDetailPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
 
   // 운동 항목 순서 편집
   const [isExReorderMode, setIsExReorderMode] = useState(false);
@@ -87,6 +89,11 @@ export const WorkoutDetailPage = () => {
   };
 
   const handleUpdate = async (data: any) => {
+    await updateWorkout({ id: Number(id), data });
+    // 저장만 — 모달 유지
+  };
+
+  const handleUpdateAndClose = async (data: any) => {
     await updateWorkout({ id: Number(id), data });
     setIsEditModalOpen(false);
   };
@@ -357,13 +364,30 @@ export const WorkoutDetailPage = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         title="운동 기록 수정"
+        headerActions={
+          <button
+            type="button"
+            onClick={() => setIsTimerModalOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-primary-600 bg-primary-50 hover:bg-primary-100 transition-colors"
+            title="휴식 타이머"
+          >
+            <Timer size={15} />
+            타이머
+          </button>
+        }
       >
         <WorkoutForm
           initialWorkout={workout}
           onSubmit={handleUpdate}
+          onSaveAndClose={handleUpdateAndClose}
           onCancel={() => setIsEditModalOpen(false)}
         />
       </Modal>
+
+      <RestTimerModal
+        isOpen={isTimerModalOpen}
+        onClose={() => setIsTimerModalOpen(false)}
+      />
 
       <Modal
         isOpen={isCopyModalOpen}

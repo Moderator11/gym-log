@@ -9,6 +9,7 @@ export const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // 데스크톱 전체 메뉴
   const navLinks = [
     { to: "/workouts", label: "운동 기록", icon: <Dumbbell size={16} /> },
     { to: "/categories", label: "카테고리", icon: <Tag size={16} /> },
@@ -16,6 +17,20 @@ export const Navbar = () => {
     { to: "/friends", label: "친구", icon: <Users size={16} /> },
     { to: "/stats", label: "통계", icon: <BarChart2 size={16} /> },
     { to: "/timer", label: "타이머", icon: <Timer size={16} /> },
+  ];
+
+  // 모바일 상단 바에 바로 노출할 퀵 링크
+  const mobileQuickLinks = [
+    { to: "/workouts", label: "운동 기록", icon: <Dumbbell size={20} /> },
+    { to: "/timer", label: "타이머", icon: <Timer size={20} /> },
+    { to: "/stats", label: "통계", icon: <BarChart2 size={20} /> },
+  ];
+
+  // 모바일 햄버거 메뉴에만 들어갈 링크
+  const mobileMenuLinks = [
+    { to: "/categories", label: "카테고리", icon: <Tag size={16} /> },
+    { to: "/health", label: "건강 기록", icon: <Activity size={16} /> },
+    { to: "/friends", label: "친구", icon: <Users size={16} /> },
   ];
 
   return (
@@ -55,7 +70,7 @@ export const Navbar = () => {
           )}
 
           {/* 우측 버튼 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {isAuthenticated ? (
               <>
                 <Button
@@ -67,10 +82,32 @@ export const Navbar = () => {
                   <LogOut size={15} className="mr-1" />
                   로그아웃
                 </Button>
-                {/* 모바일 햄버거 */}
+
+                {/* 모바일 퀵 링크 (운동기록·타이머·통계) */}
+                <div className="flex sm:hidden items-center">
+                  {mobileQuickLinks.map(({ to, label, icon }) => {
+                    const active = location.pathname.startsWith(to);
+                    return (
+                      <Link key={to} to={to} aria-label={label}>
+                        <button
+                          className={`p-2 rounded-lg transition-colors ${
+                            active
+                              ? "text-primary-600 bg-primary-50"
+                              : "text-gray-500 hover:bg-gray-100"
+                          }`}
+                        >
+                          {icon}
+                        </button>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* 모바일 햄버거 (나머지 메뉴) */}
                 <button
                   className="sm:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
                   onClick={() => setMobileOpen((o) => !o)}
+                  aria-label="더보기 메뉴"
                 >
                   {mobileOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
@@ -91,10 +128,10 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* 모바일 드롭다운 */}
+      {/* 모바일 드롭다운 (카테고리·건강기록·친구·로그아웃) */}
       {isAuthenticated && mobileOpen && (
         <div className="sm:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
-          {navLinks.map(({ to, label, icon }) => {
+          {mobileMenuLinks.map(({ to, label, icon }) => {
             const active = location.pathname.startsWith(to);
             return (
               <Link

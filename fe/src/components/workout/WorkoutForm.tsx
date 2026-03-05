@@ -29,6 +29,11 @@ interface WorkoutFormProps {
    * 날짜·시간·제목·메모는 빈 값(오늘/현재)으로 초기화합니다.
    */
   isCopy?: boolean;
+  /**
+   * 제공 시 "저장"(모달 유지) / "닫기"(저장 후 모달 닫기) / "취소" 세 버튼이 표시됩니다.
+   * 미제공 시 기존 "취소" / "저장" 두 버튼.
+   */
+  onSaveAndClose?: (data: WorkoutCreateRequest) => Promise<void>;
 }
 
 export const WorkoutForm = ({
@@ -36,6 +41,7 @@ export const WorkoutForm = ({
   onCancel,
   initialWorkout,
   isCopy,
+  onSaveAndClose,
 }: WorkoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showReorderControls, setShowReorderControls] = useState(false);
@@ -122,42 +128,47 @@ export const WorkoutForm = ({
     setExercises(next);
   };
 
+  /** 폼 데이터를 빌드한 뒤 지정한 핸들러를 호출합니다. */
+  const buildAndCall = async (
+    handler: (data: WorkoutCreateRequest) => Promise<void>,
+  ) => {
+    // 직접 입력한 이름이 카테고리 목록에 없으면 자동 추가
+    const existingNames = new Set(categories.map((c) => c.name));
+    for (const ex of exercises) {
+      if (ex.name && !existingNames.has(ex.name)) {
+        await createCategory({
+          name: ex.name,
+          tags: [],
+          exercise_type: ex.exercise_type,
+        });
+        existingNames.add(ex.name);
+      }
+    }
+    const data: WorkoutCreateRequest = {
+      workout_date: workoutDate,
+      start_time: localToUtcTime(workoutDate, startTime),
+      end_time: localToUtcTime(workoutDate, endTime),
+      title: title.trim() || null,
+      memo: memo.trim() || null,
+      exercises: exercises.map((ex) => ({
+        name: ex.name,
+        exercise_type: ex.exercise_type,
+        sets: ex.sets.map((s) => ({
+          weight_kg: s.weight_kg,
+          reps: s.reps,
+          distance_km: s.distance_km,
+          duration_seconds: s.duration_seconds,
+        })),
+      })),
+    };
+    await handler(data);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // 직접 입력한 이름이 카테고리 목록에 없으면 자동 추가
-      const existingNames = new Set(categories.map((c) => c.name));
-      for (const ex of exercises) {
-        if (ex.name && !existingNames.has(ex.name)) {
-          await createCategory({
-            name: ex.name,
-            tags: [],
-            exercise_type: ex.exercise_type,
-          });
-          existingNames.add(ex.name);
-        }
-      }
-
-      const data: WorkoutCreateRequest = {
-        workout_date: workoutDate,
-        start_time: localToUtcTime(workoutDate, startTime),
-        end_time: localToUtcTime(workoutDate, endTime),
-        title: title.trim() || null,
-        memo: memo.trim() || null,
-        exercises: exercises.map((ex) => ({
-          name: ex.name,
-          exercise_type: ex.exercise_type,
-          sets: ex.sets.map((s) => ({
-            weight_kg: s.weight_kg,
-            reps: s.reps,
-            distance_km: s.distance_km,
-            duration_seconds: s.duration_seconds,
-          })),
-        })),
-      };
-
-      await onSubmit(data);
+      await buildAndCall(onSubmit);
     } catch (error) {
       console.error("Failed to submit workout:", error);
     } finally {
@@ -339,14 +350,43 @@ export const WorkoutForm = ({
         )}
       </div>
 
-      <div className="flex gap-3 justify-end pt-2">
-        <Button type="button" variant="secondary" onClick={onCancel}>
-          취소
-        </Button>
-        <Button type="submit" isLoading={isSubmitting}>
-          저장
-        </Button>
-      </div>
+      {onSaveAndClose ? (
+        /* 수정 모드 — 취소 / 저장 / 닫기 */
+        <div className="flex gap-2 justify-end pt-2">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            취소
+          </Button>
+          <Button type="submit" isLoading={isSubmitting} variant="secondary">
+            저장
+          </Button>
+          <Button
+            type="button"
+            isLoading={isSubmitting}
+            onClick={async () => {
+              setIsSubmitting(true);
+              try {
+                await buildAndCall(onSaveAndClose);
+              } catch (error) {
+                console.error("Failed to save and close:", error);
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}
+          >
+            저장 후 닫기
+          </Button>
+        </div>
+      ) : (
+        /* 생성/복사 모드 — 취소 / 저장 */
+        <div className="flex gap-3 justify-end pt-2">
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            취소
+          </Button>
+          <Button type="submit" isLoading={isSubmitting}>
+            저장
+          </Button>
+        </div>
+      )}
     </form>
   );
 };
