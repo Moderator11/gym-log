@@ -354,6 +354,7 @@ export const ExerciseInput = ({
                     label="km"
                     value={set.distance_km ?? 1}
                     step={0.1}
+                    inputStep={0.01}
                     min={0}
                     onChange={(v) => updateSet(idx, "distance_km", v)}
                   />
