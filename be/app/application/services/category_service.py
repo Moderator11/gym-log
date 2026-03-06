@@ -1,6 +1,7 @@
 from typing import List
 from app.domain.entities.exercise_category import ExerciseCategory
 from app.domain.repositories.category_repository import CategoryRepository
+from app.domain.repositories.workout_repository import WorkoutRepository
 
 
 class CategoryService:
@@ -9,8 +10,9 @@ class CategoryService:
     향후 친구 시스템 확장 시 공개 카테고리 공유 기능을 이 서비스에 추가할 수 있습니다.
     """
 
-    def __init__(self, category_repository: CategoryRepository):
+    def __init__(self, category_repository: CategoryRepository, workout_repository: WorkoutRepository):
         self.category_repository = category_repository
+        self.workout_repository = workout_repository
 
     def create_category(self, user_id: int, name: str, tags: List[str] = None, exercise_type: str = "anaerobic") -> ExerciseCategory:
         """카테고리 생성"""
@@ -42,10 +44,14 @@ class CategoryService:
             raise ValueError("이미 존재하는 카테고리 이름입니다")
 
     def delete_category(self, category_id: int, user_id: int) -> bool:
-        """카테고리 삭제 (소유자만)"""
+        """카테고리 삭제 (소유자만).
+        해당 이름의 운동 기록(Exercise + ExerciseSet)을 먼저 CASCADE 삭제한 후 카테고리를 제거한다.
+        """
         category = self.category_repository.find_by_id(category_id)
         if not category:
             raise ValueError("카테고리를 찾을 수 없습니다")
         if category.user_id != user_id:
             raise ValueError("권한이 없습니다")
+        # 카테고리 이름과 일치하는 모든 운동 기록 삭제 (세트는 ORM cascade로 자동 삭제)
+        self.workout_repository.delete_exercises_by_name(user_id, category.name)
         return self.category_repository.delete(category_id)

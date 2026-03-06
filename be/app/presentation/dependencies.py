@@ -48,10 +48,11 @@ def get_workout_service(
 
 
 def get_category_service(
-    category_repository: CategoryRepositoryImpl = Depends(get_category_repository)
+    category_repository: CategoryRepositoryImpl = Depends(get_category_repository),
+    workout_repository: WorkoutRepositoryImpl = Depends(get_workout_repository),
 ) -> CategoryService:
     """카테고리 서비스 의존성"""
-    return CategoryService(category_repository)
+    return CategoryService(category_repository, workout_repository)
 
 
 def get_friendship_repository(db: Session = Depends(get_db)) -> FriendshipRepositoryImpl:

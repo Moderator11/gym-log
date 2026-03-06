@@ -137,6 +137,22 @@ class WorkoutRepositoryImpl(WorkoutRepository):
         return True
 
 
+    def delete_exercises_by_name(self, user_id: int, exercise_name: str) -> int:
+        """사용자의 모든 세션에서 이름이 일치하는 ExerciseModel(+하위 세트) 삭제"""
+        exercises = (
+            self.db.query(ExerciseModel)
+            .join(WorkoutSessionModel, ExerciseModel.workout_session_id == WorkoutSessionModel.id)
+            .filter(
+                WorkoutSessionModel.user_id == user_id,
+                ExerciseModel.name == exercise_name,
+            )
+            .all()
+        )
+        for ex in exercises:
+            self.db.delete(ex)  # sets는 cascade="all, delete-orphan"으로 자동 삭제
+        self.db.commit()
+        return len(exercises)
+
     def _to_domain(self, db_session: WorkoutSessionModel) -> WorkoutSession:
         """DB 모델을 도메인 엔티티로 변환"""
         exercises = []

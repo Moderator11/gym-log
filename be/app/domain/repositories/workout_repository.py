@@ -35,3 +35,8 @@ class WorkoutRepository(ABC):
     def reorder_exercises(self, session_id: int, order_items: list) -> None:
         """운동 항목 순서 일괄 업데이트 (order_items: [{id, sort_order}])"""
         pass
+
+    @abstractmethod
+    def delete_exercises_by_name(self, user_id: int, exercise_name: str) -> int:
+        """특정 사용자의 모든 세션에서 이름이 일치하는 운동 항목(+세트) 삭제. 삭제된 항목 수 반환."""
+        pass
