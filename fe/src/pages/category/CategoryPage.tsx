@@ -4,7 +4,8 @@ import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Plus, Pencil, Trash2, Tag, X, Check, Zap, Wind, Hash, Timer } from "lucide-react";
+import { Plus, Pencil, Trash2, Tag, X, Check, Zap, Wind, Hash, Timer, Download } from "lucide-react";
+import { DEFAULT_EXERCISES } from "@/constants/defaultExercises";
 
 /* ─────────────────────────── 태그 입력 서브 컴포넌트 ─────────────────────────── */
 interface TagInputProps {
@@ -255,6 +256,8 @@ export const CategoryPage = () => {
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [loadingDefaults, setLoadingDefaults] = useState(false);
+  const [defaultsResult, setDefaultsResult] = useState<string | null>(null);
 
   /* 전체 태그 목록 (중복 제거·정렬) */
   const allTags = useMemo(() => {
@@ -277,6 +280,30 @@ export const CategoryPage = () => {
       selectedTags.every((t) => c.tags.includes(t)),
     );
   }, [categories, selectedTags]);
+
+
+  const handleLoadDefaults = async () => {
+    const existingNames = new Set(categories.map((c) => c.name));
+    const toAdd = DEFAULT_EXERCISES.filter((e) => !existingNames.has(e.name));
+    if (toAdd.length === 0) {
+      setDefaultsResult("모든 기본 운동이 이미 추가되어 있습니다.");
+      return;
+    }
+    setLoadingDefaults(true);
+    setDefaultsResult(null);
+    let added = 0;
+    for (const ex of toAdd) {
+      try {
+        await createCategory({ name: ex.name, tags: [], exercise_type: ex.exercise_type });
+        added++;
+      } catch {
+        // 중복 등 에러 무시하고 계속 진행
+      }
+    }
+    setLoadingDefaults(false);
+    setDefaultsResult(`${added}개 운동이 추가됐습니다.`);
+    setTimeout(() => setDefaultsResult(null), 4000);
+  };
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -310,13 +337,33 @@ export const CategoryPage = () => {
             {categories.length}개의 카테고리
           </p>
         </div>
-        {!showForm && (
-          <Button onClick={() => setShowForm(true)} size="sm">
-            <Plus size={16} className="mr-1" />
-            카테고리 추가
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {!loadingDefaults && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleLoadDefaults}
+              disabled={loadingDefaults}
+            >
+              <Download size={14} className="mr-1" />
+              기본 운동 불러오기
+            </Button>
+          )}
+          {!showForm && (
+            <Button onClick={() => setShowForm(true)} size="sm">
+              <Plus size={16} className="mr-1" />
+              카테고리 추가
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* 기본 운동 불러오기 결과 */}
+      {defaultsResult && (
+        <div className="px-4 py-2.5 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+          {defaultsResult}
+        </div>
+      )}
 
       {/* 신규 생성 폼 */}
       {showForm && (

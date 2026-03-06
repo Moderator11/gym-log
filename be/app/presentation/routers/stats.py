@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import date as date_type
 from app.application.services.stats_service import StatsService
 from app.application.services.friendship_service import FriendshipService
-from app.application.dtos.stats_dto import DailyStats, CalendarDayInfo, StatsComparisonResponse, FriendStatsComparison
+from app.application.dtos.stats_dto import DailyStats, CalendarDayInfo, StatsComparisonResponse, FriendStatsComparison, ExercisePR
 from app.presentation.dependencies import get_current_user_id, get_stats_service, get_friendship_service
 
 router = APIRouter(prefix="/stats", tags=["통계"])
@@ -59,6 +59,15 @@ def get_period_stats(
         except ValueError:
             raise HTTPException(status_code=400, detail="today must be YYYY-MM-DD")
     return [DailyStats(**d) for d in svc.get_period_stats(user_id, period, ref_date)]
+
+
+@router.get("/pr", response_model=List[ExercisePR])
+def get_personal_records(
+    user_id: int = Depends(get_current_user_id),
+    svc: StatsService = Depends(get_stats_service)
+):
+    """카테고리별 개인 최고 기록(PR) 조회"""
+    return [ExercisePR(**item) for item in svc.get_personal_records(user_id)]
 
 
 @router.get("/friends/{friend_id}", response_model=FriendStatsComparison)

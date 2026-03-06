@@ -25,3 +25,9 @@ export const useFriendComparison = (friendId: number | null) =>
     queryFn: () => statsApi.getFriendComparison(friendId!),
     enabled: !!friendId,
   });
+
+export const usePR = () =>
+  useQuery({
+    queryKey: ["stats", "pr"],
+    queryFn: statsApi.getPR,
+  });

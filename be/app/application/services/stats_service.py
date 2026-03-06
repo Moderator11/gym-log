@@ -154,3 +154,122 @@ class StatsService:
             "my_workout_count": sum(1 for s in sessions_me if (today - timedelta(days=6)) <= s.workout_date <= today),
             "friend_workout_count": sum(1 for s in sessions_friend if (today - timedelta(days=6)) <= s.workout_date <= today),
         }
+
+    def get_personal_records(self, user_id: int) -> List[dict]:
+        """카테고리(운동 이름)별 개인 최고 기록(PR)
+
+        exercise_type별 지표:
+          anaerobic → best_weight_kg (최대 중량), best_volume / best_volume_weight_kg / best_volume_reps (볼륨)
+          aerobic   → best_distance_km (최대 거리), best_avg_speed_kmh (최고 평균 속도), best_duration_seconds
+          count     → best_reps_only (최대 횟수)
+          duration  → best_duration_seconds (최장 시간)
+        """
+        sessions = self.workout_repository.find_by_user_id(user_id)
+
+        # exercise_name -> unified PR record
+        pr_map: dict = {}
+
+        for session in sessions:
+            date_str = str(session.workout_date)
+            for ex in session.exercises:
+                name = ex.name
+                etype = ex.exercise_type
+                if name not in pr_map:
+                    pr_map[name] = {
+                        "exercise_name": name,
+                        "exercise_type": etype,
+                        "best_weight_kg": None,
+                        "best_volume": None,
+                        "best_volume_weight_kg": None,
+                        "best_volume_reps": None,
+                        "best_distance_km": None,
+                        "best_avg_speed_kmh": None,
+                        "best_reps_only": None,
+                        "best_duration_seconds": None,
+                        "achieved_date": date_str,
+                    }
+                rec = pr_map[name]
+
+                for st in ex.sets:
+                    if etype == "anaerobic":
+                        # 중량 뷰: 무게가 있는 세트 중 최대 무게
+                        if st.weight_kg is not None:
+                            if rec["best_weight_kg"] is None or st.weight_kg > rec["best_weight_kg"]:
+                                rec["best_weight_kg"] = st.weight_kg
+                                rec["achieved_date"] = date_str
+                        # 볼륨 뷰: weight × reps 최대 세트
+                        if st.weight_kg is not None and st.reps is not None:
+                            volume = st.weight_kg * st.reps
+                            if rec["best_volume"] is None or volume > rec["best_volume"]:
+                                rec["best_volume"] = round(volume, 2)
+                                rec["best_volume_weight_kg"] = st.weight_kg
+                                rec["best_volume_reps"] = st.reps
+
+                    elif etype == "aerobic":
+                        # 거리 뷰
+                        if st.distance_km is not None:
+                            if rec["best_distance_km"] is None or st.distance_km > rec["best_distance_km"]:
+                                rec["best_distance_km"] = round(st.distance_km, 2)
+                                rec["achieved_date"] = date_str
+                        # 평균 속도 뷰: distance / time (km/h)
+                        if (st.distance_km is not None and st.duration_seconds is not None
+                                and st.duration_seconds > 0):
+                            speed = st.distance_km / (st.duration_seconds / 3600.0)
+                            if rec["best_avg_speed_kmh"] is None or speed > rec["best_avg_speed_kmh"]:
+                                rec["best_avg_speed_kmh"] = round(speed, 2)
+                        # 유산소 시간 (보조)
+                        if st.duration_seconds is not None:
+                            if rec["best_duration_seconds"] is None or st.duration_seconds > rec["best_duration_seconds"]:
+                                rec["best_duration_seconds"] = st.duration_seconds
+
+                    elif etype == "count":
+                        # 횟수 뷰: reps 최대값
+                        if st.reps is not None:
+                            if rec["best_reps_only"] is None or st.reps > rec["best_reps_only"]:
+                                rec["best_reps_only"] = st.reps
+                                rec["achieved_date"] = date_str
+
+                    elif etype == "duration":
+                        # 시간 뷰: duration_seconds 최대값
+                        if st.duration_seconds is not None:
+                            if rec["best_duration_seconds"] is None or st.duration_seconds > rec["best_duration_seconds"]:
+                                rec["best_duration_seconds"] = st.duration_seconds
+                                rec["achieved_date"] = date_str
+
+        # 유효한 PR이 하나 이상인 항목만, 타입→이름 순 정렬
+        type_order = {"anaerobic": 0, "aerobic": 1, "count": 2, "duration": 3}
+        return sorted(
+            [
+                rec for rec in pr_map.values()
+                if any(rec[k] is not None for k in (
+                    "best_weight_kg", "best_volume", "best_distance_km",
+                    "best_avg_speed_kmh", "best_reps_only", "best_duration_seconds",
+                ))
+            ],
+            key=lambda x: (type_order.get(x["exercise_type"], 9), x["exercise_name"]),
+        )
+
+    def get_friend_stats_comparison(self, user_id: int, friend_id: int, friend_sharing_enabled: bool) -> dict:
+        """친구와의 통계 비교"""
+        if not friend_sharing_enabled:
+            raise ValueError("친구가 운동 공유를 비활성화했습니다")
+
+        sessions_me = self.workout_repository.find_by_user_id(user_id)
+        sessions_friend = self.workout_repository.find_by_user_id(friend_id)
+        today = date.today()
+
+        def compute_7day_volume(sessions):
+            total = 0.0
+            for s in sessions:
+                if (today - timedelta(days=6)) <= s.workout_date <= today:
+                    for ex in s.exercises:
+                        for st in ex.sets:
+                            total += (st.weight_kg or 0) * (st.reps or 0)
+            return round(total, 2)
+
+        return {
+            "my_7day_volume": compute_7day_volume(sessions_me),
+            "friend_7day_volume": compute_7day_volume(sessions_friend),
+            "my_workout_count": sum(1 for s in sessions_me if (today - timedelta(days=6)) <= s.workout_date <= today),
+            "friend_workout_count": sum(1 for s in sessions_friend if (today - timedelta(days=6)) <= s.workout_date <= today),
+        }

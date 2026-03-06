@@ -3,15 +3,22 @@ import {
   useStatsComparison,
   usePeriodStats,
   useCalendar,
+  usePR,
 } from "@/hooks/useStats";
 import { useHealthStats } from "@/hooks/useHealth";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ExercisePR } from "@/types/stats.types";
 import {
   TrendingUp,
   TrendingDown,
   ChevronLeft,
   ChevronRight,
+  Trophy,
+  Zap,
+  Wind,
+  Hash,
+  Timer,
 } from "lucide-react";
 import {
   LineChart,
@@ -23,6 +30,272 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+/* ────────────────────── 헬퍼 ────────────────────── */
+const formatDuration = (seconds: number): string => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0)
+    return `${h}시간 ${String(m).padStart(2, "0")}분 ${String(s).padStart(2, "0")}초`;
+  if (m > 0) return `${m}분 ${String(s).padStart(2, "0")}초`;
+  return `${s}초`;
+};
+
+/* ────────────────────── PR 섹션 컴포넌트 ────────────────────── */
+const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
+  const [anaerobicView, setAnaerobicView] = useState<"weight" | "volume">(
+    "weight",
+  );
+  const [aerobicView, setAerobicView] = useState<"distance" | "speed">(
+    "distance",
+  );
+
+  const anaerobic = prData.filter((p) => p.exercise_type === "anaerobic");
+  const aerobic = prData.filter((p) => p.exercise_type === "aerobic");
+  const count = prData.filter((p) => p.exercise_type === "count");
+  const duration = prData.filter((p) => p.exercise_type === "duration");
+
+  if (prData.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-400 text-sm">
+        아직 기록된 운동이 없습니다.
+      </div>
+    );
+  }
+
+  const ToggleBtn = ({
+    active,
+    onClick,
+    children,
+  }: {
+    active: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+        active
+          ? "bg-gray-700 text-white"
+          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+      }`}
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <div className="space-y-5">
+      {/* 무산소 */}
+      {anaerobic.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Zap size={14} className="text-blue-500" />
+              <h3 className="text-sm font-semibold text-gray-600">무산소</h3>
+            </div>
+            <div className="flex gap-1">
+              <ToggleBtn
+                active={anaerobicView === "weight"}
+                onClick={() => setAnaerobicView("weight")}
+              >
+                최대 중량
+              </ToggleBtn>
+              <ToggleBtn
+                active={anaerobicView === "volume"}
+                onClick={() => setAnaerobicView("volume")}
+              >
+                볼륨
+              </ToggleBtn>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {anaerobic.map((pr) => (
+              <div
+                key={pr.exercise_name}
+                className="flex items-start justify-between bg-blue-50 rounded-lg px-4 py-3"
+              >
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">
+                    {pr.exercise_name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {pr.achieved_date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {anaerobicView === "weight" ? (
+                    pr.best_weight_kg != null ? (
+                      <p className="font-bold text-blue-600 text-sm">
+                        {pr.best_weight_kg} kg
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-400">기록 없음</p>
+                    )
+                  ) : pr.best_volume != null ? (
+                    <>
+                      <p className="font-bold text-blue-600 text-sm">
+                        {pr.best_volume_weight_kg}kg × {pr.best_volume_reps}회
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        볼륨 {pr.best_volume}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-gray-400">기록 없음</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 유산소 */}
+      {aerobic.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Wind size={14} className="text-green-500" />
+              <h3 className="text-sm font-semibold text-gray-600">유산소</h3>
+            </div>
+            <div className="flex gap-1">
+              <ToggleBtn
+                active={aerobicView === "distance"}
+                onClick={() => setAerobicView("distance")}
+              >
+                최대 거리
+              </ToggleBtn>
+              <ToggleBtn
+                active={aerobicView === "speed"}
+                onClick={() => setAerobicView("speed")}
+              >
+                평균 속도
+              </ToggleBtn>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {aerobic.map((pr) => (
+              <div
+                key={pr.exercise_name}
+                className="flex items-start justify-between bg-green-50 rounded-lg px-4 py-3"
+              >
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">
+                    {pr.exercise_name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {pr.achieved_date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {aerobicView === "distance" ? (
+                    pr.best_distance_km != null ? (
+                      <>
+                        <p className="font-bold text-green-600 text-sm">
+                          {pr.best_distance_km} km
+                        </p>
+                        {pr.best_duration_seconds != null && (
+                          <p className="text-xs text-gray-500">
+                            {formatDuration(pr.best_duration_seconds)}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-400">기록 없음</p>
+                    )
+                  ) : pr.best_avg_speed_kmh != null ? (
+                    <p className="font-bold text-green-600 text-sm">
+                      {pr.best_avg_speed_kmh} km/h
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400">
+                      거리+시간 기록 필요
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 횟수 */}
+      {count.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Hash size={14} className="text-purple-500" />
+            <h3 className="text-sm font-semibold text-gray-600">횟수</h3>
+          </div>
+          <div className="space-y-2">
+            {count.map((pr) => (
+              <div
+                key={pr.exercise_name}
+                className="flex items-start justify-between bg-purple-50 rounded-lg px-4 py-3"
+              >
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">
+                    {pr.exercise_name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {pr.achieved_date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {pr.best_reps_only != null ? (
+                    <p className="font-bold text-purple-600 text-sm">
+                      최대 {pr.best_reps_only}회
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400">기록 없음</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 시간 */}
+      {duration.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Timer size={14} className="text-orange-500" />
+            <h3 className="text-sm font-semibold text-gray-600">시간</h3>
+          </div>
+          <div className="space-y-2">
+            {duration.map((pr) => (
+              <div
+                key={pr.exercise_name}
+                className="flex items-start justify-between bg-orange-50 rounded-lg px-4 py-3"
+              >
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">
+                    {pr.exercise_name}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {pr.achieved_date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {pr.best_duration_seconds != null ? (
+                    <p className="font-bold text-orange-600 text-sm">
+                      {formatDuration(pr.best_duration_seconds)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400">기록 없음</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ────────────────────── 메인 페이지 ────────────────────── */
 export const StatsPage = () => {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
   const today = new Date();
@@ -33,6 +306,7 @@ export const StatsPage = () => {
   const periodStatsQuery = usePeriodStats(period);
   const healthStatsQuery = useHealthStats();
   const calendarQuery = useCalendar(calYear, calMonth);
+  const prQuery = usePR();
 
   const comparison = comparisonQuery.data;
   const periodStats = periodStatsQuery.data || [];
@@ -279,6 +553,23 @@ export const StatsPage = () => {
               },
             )}
           </div>
+        )}
+      </Card>
+
+      {/* 카테고리별 PR 기록 */}
+      <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy size={18} className="text-yellow-500" />
+          <h2 className="font-semibold text-gray-800">
+            카테고리별 개인 최고 기록 (PR)
+          </h2>
+        </div>
+        {prQuery.isLoading ? (
+          <div className="flex justify-center items-center h-24">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600" />
+          </div>
+        ) : (
+          <PRSection prData={prQuery.data ?? []} />
         )}
       </Card>
 
