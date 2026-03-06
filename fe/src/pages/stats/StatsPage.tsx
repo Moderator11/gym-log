@@ -339,6 +339,16 @@ export const StatsPage = () => {
     return "지난 12개월";
   };
 
+  const getComparisonLabel = (daysAgo: number) => {
+    if (daysAgo === 1) return "어제 vs 오늘";
+    return `${daysAgo}일 전 vs 오늘`;
+  };
+
+  const getPastLabel = (daysAgo: number) => {
+    if (daysAgo === 1) return "어제";
+    return `${daysAgo}일 전`;
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* 헤더 */}
@@ -347,10 +357,12 @@ export const StatsPage = () => {
         <p className="text-sm text-gray-500 mt-0.5">운동 기록 분석</p>
       </div>
 
-      {/* 어제/오늘 비교 */}
+      {/* 마지막 운동일 vs 오늘 비교 */}
       {comparison && (
         <Card>
-          <h2 className="font-semibold text-gray-800 mb-4">어제 vs 오늘</h2>
+          <h2 className="font-semibold text-gray-800 mb-4">
+            {getComparisonLabel(comparison.days_ago)}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-blue-50 rounded-lg p-4">
               <p className="text-xs text-gray-600 font-medium mb-1">
@@ -366,7 +378,7 @@ export const StatsPage = () => {
 
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-xs text-gray-600 font-medium mb-1">
-                어제 무산소 볼륨
+                {getPastLabel(comparison.days_ago)} 무산소 볼륨
               </p>
               <p className="text-2xl font-bold text-gray-600">
                 {comparison.yesterday.total_anaerobic_volume}

@@ -40,23 +40,33 @@ class StatsService:
         }
 
     def get_comparison(self, user_id: int, ref_date: Optional[date] = None) -> dict:
-        """어제와 오늘의 통계 비교"""
+        """마지막 운동일 vs 오늘 통계 비교.
+        과거 운동 기록이 없으면 어제(days_ago=1)를 기준으로 한다.
+        """
         sessions = self.workout_repository.find_by_user_id(user_id)
         today = ref_date or date.today()
-        yesterday = today - timedelta(days=1)
+
+        # 오늘 이전에 운동한 날 중 가장 최근 날짜를 찾는다
+        past_dates = sorted(
+            {s.workout_date for s in sessions if s.workout_date < today},
+            reverse=True,
+        )
+        last_workout_date = past_dates[0] if past_dates else today - timedelta(days=1)
+        days_ago = (today - last_workout_date).days
 
         today_stats = self._compute_daily(sessions, today)
-        yesterday_stats = self._compute_daily(sessions, yesterday)
+        last_stats = self._compute_daily(sessions, last_workout_date)
 
-        volume_change = today_stats["total_anaerobic_volume"] - yesterday_stats["total_anaerobic_volume"]
-        if yesterday_stats["total_anaerobic_volume"] > 0:
-            volume_change_pct = round((volume_change / yesterday_stats["total_anaerobic_volume"]) * 100, 1)
+        volume_change = today_stats["total_anaerobic_volume"] - last_stats["total_anaerobic_volume"]
+        if last_stats["total_anaerobic_volume"] > 0:
+            volume_change_pct = round((volume_change / last_stats["total_anaerobic_volume"]) * 100, 1)
         else:
             volume_change_pct = None
 
         return {
             "today": today_stats,
-            "yesterday": yesterday_stats,
+            "yesterday": last_stats,
+            "days_ago": days_ago,
             "volume_change": round(volume_change, 2),
             "volume_change_pct": volume_change_pct,
         }

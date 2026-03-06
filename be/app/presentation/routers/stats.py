@@ -26,6 +26,7 @@ def get_comparison(
     return StatsComparisonResponse(
         today=DailyStats(**data["today"]),
         yesterday=DailyStats(**data["yesterday"]),
+        days_ago=data["days_ago"],
         volume_change=data["volume_change"],
         volume_change_pct=data["volume_change_pct"],
     )

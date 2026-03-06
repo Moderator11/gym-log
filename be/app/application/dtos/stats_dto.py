@@ -22,7 +22,8 @@ class CalendarDayInfo(BaseModel):
 class StatsComparisonResponse(BaseModel):
     """통계 비교 응답"""
     today: DailyStats
-    yesterday: DailyStats
+    yesterday: DailyStats          # 마지막 운동일 기준 (어제가 아닐 수 있음)
+    days_ago: int                  # 마지막 운동일이 오늘로부터 며칠 전인지
     volume_change: float
     volume_change_pct: Optional[float]
 

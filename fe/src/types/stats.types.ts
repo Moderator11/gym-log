@@ -15,7 +15,8 @@ export interface CalendarDayInfo {
 
 export interface StatsComparisonResponse {
   today: DailyStats;
-  yesterday: DailyStats;
+  yesterday: DailyStats;   // 마지막 운동일 기준 (어제가 아닐 수 있음)
+  days_ago: number;        // 마지막 운동일이 오늘로부터 며칠 전인지
   volume_change: number;
   volume_change_pct: number | null;
 }
