@@ -47,9 +47,7 @@ export const FriendWorkoutsPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {workouts.map((workout) => (
-            <div key={workout.id} className="pointer-events-none">
-              <WorkoutCard workout={workout} />
-            </div>
+            <WorkoutCard key={workout.id} workout={workout} disableLink />
           ))}
         </div>
       )}

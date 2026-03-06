@@ -1,22 +1,29 @@
+import { useState } from "react";
 import { WorkoutSession } from "@/types/workout.types";
 import { Card } from "@/components/ui/Card";
-import { Calendar, Clock, Dumbbell, Copy } from "lucide-react";
+import { Calendar, Clock, Dumbbell, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { utcToLocalTime } from "@/utils/time.util";
 
 interface WorkoutCardProps {
   workout: WorkoutSession;
   onCopy?: () => void;
+  disableLink?: boolean;
 }
 
-export const WorkoutCard = ({ workout, onCopy }: WorkoutCardProps) => {
+export const WorkoutCard = ({ workout, onCopy, disableLink }: WorkoutCardProps) => {
   const localDate = workout.workout_date;
   const localStart = utcToLocalTime(workout.workout_date, workout.start_time);
   const localEnd = utcToLocalTime(workout.workout_date, workout.end_time);
+  const [expanded, setExpanded] = useState(false);
 
-  return (
-    <Link to={`/workouts/${workout.id}`}>
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+  const visibleExercises = expanded
+    ? workout.exercises
+    : workout.exercises.slice(0, 3);
+  const hiddenCount = workout.exercises.length - 3;
+
+  const inner = (
+    <Card className={`h-full ${disableLink ? "" : "hover:shadow-lg transition-shadow cursor-pointer"}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             {/* 제목 */}
@@ -45,7 +52,7 @@ export const WorkoutCard = ({ workout, onCopy }: WorkoutCardProps) => {
             </div>
 
             <div className="space-y-1">
-              {workout.exercises.slice(0, 3).map((exercise, idx) => {
+              {visibleExercises.map((exercise, idx) => {
                 const firstSet = exercise.sets[0];
                 const type = exercise.exercise_type;
 
@@ -71,10 +78,35 @@ export const WorkoutCard = ({ workout, onCopy }: WorkoutCardProps) => {
                   </div>
                 );
               })}
-              {workout.exercises.length > 3 && (
-                <div className="text-xs text-gray-400">
-                  + {workout.exercises.length - 3}개 더
-                </div>
+
+              {hiddenCount > 0 && !expanded && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpanded(true);
+                  }}
+                  className="flex items-center gap-0.5 text-xs text-primary-500 hover:text-primary-700 mt-0.5 transition-colors"
+                >
+                  <ChevronDown size={13} />
+                  + {hiddenCount}개 더 보기
+                </button>
+              )}
+
+              {expanded && hiddenCount > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpanded(false);
+                  }}
+                  className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-600 mt-0.5 transition-colors"
+                >
+                  <ChevronUp size={13} />
+                  접기
+                </button>
               )}
             </div>
           </div>
@@ -95,7 +127,8 @@ export const WorkoutCard = ({ workout, onCopy }: WorkoutCardProps) => {
             </button>
           )}
         </div>
-      </Card>
-    </Link>
+    </Card>
   );
+
+  return disableLink ? inner : <Link to={`/workouts/${workout.id}`}>{inner}</Link>;
 };
