@@ -41,3 +41,20 @@ class UserSettingsResponse(BaseModel):
     health_sharing_enabled: bool
     username: str
     display_name: str
+    created_at: datetime
+
+
+class UpdateDisplayNameRequest(BaseModel):
+    """사용자명(표시용) 수정 요청"""
+    display_name: str = Field(..., min_length=1, max_length=50)
+
+
+class UpdatePasswordRequest(BaseModel):
+    """비밀번호 수정 요청"""
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=1)
+
+
+class DeleteAccountRequest(BaseModel):
+    """회원 탈퇴 요청"""
+    password: str = Field(..., min_length=1)

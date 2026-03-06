@@ -76,3 +76,28 @@ class AuthService:
     def update_health_sharing(self, user_id: int, health_sharing_enabled: bool):
         """건강 기록 공유 설정 업데이트"""
         return self.user_repository.update_health_sharing(user_id, health_sharing_enabled)
+
+    def update_display_name(self, user_id: int, display_name: str) -> User:
+        """표시용 이름 수정"""
+        return self.user_repository.update_display_name(user_id, display_name)
+
+    def change_password(self, user_id: int, current_password: str, new_password: str) -> User:
+        """비밀번호 변경 — 현재 비밀번호 검증 후 업데이트"""
+        user = self.user_repository.find_by_id(user_id)
+        if not user:
+            raise ValueError("사용자를 찾을 수 없습니다")
+        if not pwd_context.verify(current_password, user.hashed_password):
+            raise ValueError("현재 비밀번호가 올바르지 않습니다")
+        if current_password == new_password:
+            raise ValueError("새 비밀번호는 현재 비밀번호와 달라야 합니다")
+        hashed = pwd_context.hash(new_password)
+        return self.user_repository.update_password(user_id, hashed)
+
+    def delete_account(self, user_id: int, password: str) -> None:
+        """회원 탈퇴 — 비밀번호 검증 후 삭제"""
+        user = self.user_repository.find_by_id(user_id)
+        if not user:
+            raise ValueError("사용자를 찾을 수 없습니다")
+        if not pwd_context.verify(password, user.hashed_password):
+            raise ValueError("비밀번호가 올바르지 않습니다")
+        self.user_repository.delete(user_id)

@@ -35,3 +35,17 @@ class UserRepository(ABC):
     def find_suggestions(self, exclude_ids: List[int], limit: int = 5) -> List[User]:
         """친구 추천: 주어진 ID 목록을 제외한 랜덤 사용자 반환"""
         pass
+    @abstractmethod
+    def update_display_name(self, user_id: int, display_name: str) -> User:
+        """표시용 이름 업데이트"""
+        pass
+
+    @abstractmethod
+    def update_password(self, user_id: int, hashed_password: str) -> User:
+        """비밀번호(해시) 업데이트"""
+        pass
+
+    @abstractmethod
+    def delete(self, user_id: int) -> None:
+        """사용자 삭제"""
+        pass

@@ -16,7 +16,7 @@ class UserModel(Base):
     sharing_enabled = Column(Boolean, nullable=False, server_default="0")
     health_sharing_enabled = Column(Boolean, nullable=False, server_default="0")
 
-    workout_sessions = relationship("WorkoutSessionModel", back_populates="user")
+    workout_sessions = relationship("WorkoutSessionModel", back_populates="user", cascade="all, delete-orphan")
     exercise_categories = relationship("ExerciseCategoryModel", back_populates="user", cascade="all, delete-orphan")
 
 

@@ -65,12 +65,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     clearAuth();
   };
 
+  const updateUser = (partial: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...partial };
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const value: AuthContextType = {
     user,
     token,
     login,
     register,
     logout,
+    updateUser,
     isAuthenticated: !!token,
   };
 

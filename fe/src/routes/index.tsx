@@ -12,6 +12,7 @@ import { FriendHealthPage } from "@/pages/friends/FriendHealthPage";
 import { StatsPage } from "@/pages/stats/StatsPage";
 import { HealthPage } from "@/pages/health/HealthPage";
 import { TimerPage } from "@/pages/timer/TimerPage";
+import { ProfilePage } from "@/pages/profile/ProfilePage";
 
 export const AppRoutes = () => {
   return (
@@ -90,6 +91,14 @@ export const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <TimerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

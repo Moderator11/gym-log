@@ -6,7 +6,10 @@ from app.application.dtos.user_dto import (
     UserResponse,
     TokenResponse,
     UserSettingsUpdateRequest,
-    UserSettingsResponse
+    UserSettingsResponse,
+    UpdateDisplayNameRequest,
+    UpdatePasswordRequest,
+    DeleteAccountRequest,
 )
 from app.presentation.dependencies import get_auth_service, get_current_user_id
 
@@ -68,7 +71,8 @@ def get_me(
         sharing_enabled=user.sharing_enabled,
         health_sharing_enabled=user.health_sharing_enabled,
         username=user.username,
-        display_name=user.display_name or user.username
+        display_name=user.display_name or user.username,
+        created_at=user.created_at,
     )
 
 
@@ -86,10 +90,57 @@ def update_settings(
             sharing_enabled=user.sharing_enabled,
             health_sharing_enabled=user.health_sharing_enabled,
             username=user.username,
-            display_name=user.display_name or user.username
+            display_name=user.display_name or user.username,
+            created_at=user.created_at,
         )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+
+@router.put("/users/me/display_name", response_model=UserSettingsResponse)
+def update_display_name(
+    request: UpdateDisplayNameRequest,
+    user_id: int = Depends(get_current_user_id),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    """표시용 이름 수정"""
+    try:
+        user = auth_service.update_display_name(user_id, request.display_name)
+        return UserSettingsResponse(
+            sharing_enabled=user.sharing_enabled,
+            health_sharing_enabled=user.health_sharing_enabled,
+            username=user.username,
+            display_name=user.display_name or user.username,
+            created_at=user.created_at,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.put("/users/me/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    request: UpdatePasswordRequest,
+    user_id: int = Depends(get_current_user_id),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    """비밀번호 변경"""
+    try:
+        auth_service.change_password(user_id, request.current_password, request.new_password)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete("/users/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_account(
+    request: DeleteAccountRequest,
+    user_id: int = Depends(get_current_user_id),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    """회원 탈퇴"""
+    try:
+        auth_service.delete_account(user_id, request.password)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
