@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Trash2, Plus, Minus, ChevronDown, ChevronUp, Zap, Wind, Hash, Timer } from "lucide-react";
 import { ExerciseCategory, ExerciseType } from "@/types/workout.types";
@@ -33,8 +33,17 @@ interface StepperProps {
   onChange: (v: number) => void;
 }
 const Stepper = ({ label, value, step, inputStep, min, onChange }: StepperProps) => {
+  // 로컬 문자열 상태로 입력 중 빈 값 허용
+  const [inputValue, setInputValue] = useState(String(value));
+
+  // +/- 버튼으로 외부에서 value가 바뀌면 동기화
+  useEffect(() => {
+    setInputValue(String(value));
+  }, [value]);
+
   const dec = () => onChange(Math.max(min, parseFloat((value - step).toFixed(2))));
   const inc = () => onChange(parseFloat((value + step).toFixed(2)));
+
   return (
     <div className="flex flex-col items-center gap-0.5">
       <span className="text-xs text-gray-400">{label}</span>
@@ -48,10 +57,26 @@ const Stepper = ({ label, value, step, inputStep, min, onChange }: StepperProps)
         </button>
         <input
           type="number"
-          value={value}
+          value={inputValue}
           min={min}
           step={inputStep ?? step}
-          onChange={(e) => onChange(parseFloat(e.target.value) || min)}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            const parsed = parseFloat(e.target.value);
+            if (!isNaN(parsed)) {
+              onChange(parsed);
+            }
+          }}
+          onBlur={() => {
+            const parsed = parseFloat(inputValue);
+            if (isNaN(parsed)) {
+              // 빈 채로 포커스를 벗어나면 최솟값으로 복원
+              setInputValue(String(min));
+              onChange(min);
+            } else {
+              setInputValue(String(parsed));
+            }
+          }}
           className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
         <button
