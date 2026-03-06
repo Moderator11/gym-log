@@ -6,17 +6,18 @@ import { UserSearchResult, RankingPeriod, RankingType } from "@/types/friend.typ
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { Search, UserPlus, Check, X, Share2, EyeOff, Activity, Trophy, UserMinus } from "lucide-react";
+import { Search, UserPlus, Check, X, Share2, EyeOff, Activity, Trophy, UserMinus, Clock, XCircle } from "lucide-react";
 
 export const FriendsPage = () => {
   const navigate = useNavigate();
-  const { friends, pendingRequests, suggestions, sendRequest, respondToRequest, removeFriend, searchUsers } = useFriends();
+  const { friends, pendingRequests, sentRequests, suggestions, sendRequest, respondToRequest, removeFriend, cancelRequest, searchUsers } = useFriends();
   const { settings, updateSharing, updateHealthSharing, isUpdating } = useUserSettings();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [sendingRequest, setSendingRequest] = useState<number | null>(null);
   const [removingFriend, setRemovingFriend] = useState<number | null>(null);
+  const [cancelingRequest, setCancelingRequest] = useState<number | null>(null);
   const [rankingPeriod, setRankingPeriod] = useState<RankingPeriod>("week");
   const [rankingType, setRankingType] = useState<RankingType>("anaerobic");
   const rankingsQuery = useRankings(rankingPeriod, rankingType);
@@ -72,6 +73,17 @@ export const FriendsPage = () => {
       console.error("Failed to remove friend:", error);
     } finally {
       setRemovingFriend(null);
+    }
+  };
+
+  const handleCancelRequest = async (friendshipId: number) => {
+    setCancelingRequest(friendshipId);
+    try {
+      await cancelRequest(friendshipId);
+    } catch (error) {
+      console.error("Failed to cancel request:", error);
+    } finally {
+      setCancelingRequest(null);
     }
   };
 
@@ -264,14 +276,52 @@ export const FriendsPage = () => {
         )}
       </Card>
 
-      {/* 대기 중인 요청 */}
+      {/* 보낸 친구 요청 (수락 대기 중) */}
+      {sentRequests.length > 0 && (
+        <Card>
+          <h2 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <Clock size={16} className="text-yellow-500" />
+            보낸 친구 요청 ({sentRequests.length})
+          </h2>
+          <div className="space-y-2">
+            {sentRequests.map((req) => (
+              <div key={req.friendship_id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {req.addressee_display_name}
+                    <span className="text-xs text-gray-400 font-normal ml-1">(@{req.addressee_username})</span>
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-0.5">수락 대기 중</p>
+                </div>
+                <button
+                  type="button"
+                  title="요청 철회"
+                  disabled={cancelingRequest === req.friendship_id}
+                  onClick={() => handleCancelRequest(req.friendship_id)}
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-500 hover:text-red-500 hover:bg-red-50 border border-gray-200 hover:border-red-200 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <XCircle size={13} />
+                  철회
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 받은 친구 요청 */}
       {pendingRequests.length > 0 && (
         <Card>
           <h2 className="font-semibold text-gray-800 mb-3">받은 친구 요청 ({pendingRequests.length})</h2>
           <div className="space-y-2">
             {pendingRequests.map((request) => (
               <div key={request.friendship_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <p className="font-medium text-gray-900">{request.requester_username}</p>
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {request.requester_display_name}
+                    <span className="text-xs text-gray-400 font-normal ml-1">(@{request.requester_username})</span>
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     size="sm"

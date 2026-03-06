@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import { FriendInfo, PendingRequest, UserSearchResult, UserSuggestion, RankingEntry, RankingPeriod, RankingType } from "@/types/friend.types";
+import { FriendInfo, PendingRequest, SentRequest, UserSearchResult, UserSuggestion, RankingEntry, RankingPeriod, RankingType } from "@/types/friend.types";
 import { WorkoutSession } from "@/types/workout.types";
 
 export const friendApi = {
@@ -15,6 +15,15 @@ export const friendApi = {
   getPendingRequests: async (): Promise<PendingRequest[]> => {
     const response = await apiClient.get<PendingRequest[]>("/friends/requests/pending");
     return response.data;
+  },
+
+  getSentRequests: async (): Promise<SentRequest[]> => {
+    const response = await apiClient.get<SentRequest[]>("/friends/requests/sent");
+    return response.data;
+  },
+
+  cancelRequest: async (friendshipId: number): Promise<void> => {
+    await apiClient.delete(`/friends/requests/${friendshipId}`);
   },
 
   respondToRequest: async (friendship_id: number, action: "accept" | "decline"): Promise<void> => {

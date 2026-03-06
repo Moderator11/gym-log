@@ -7,6 +7,7 @@ from app.application.dtos.friend_dto import (
     FriendRequestAction,
     FriendInfo,
     PendingRequestInfo,
+    SentRequestInfo,
     UserSearchResult,
     UserSuggestion,
     RankingEntry,
@@ -53,6 +54,28 @@ def get_pending_requests(
 ):
     """대기 중인 친구 요청 목록"""
     return [PendingRequestInfo(**r) for r in svc.get_pending_requests(user_id)]
+
+
+@router.get("/requests/sent", response_model=List[SentRequestInfo])
+def get_sent_requests(
+    user_id: int = Depends(get_current_user_id),
+    svc: FriendshipService = Depends(get_friendship_service)
+):
+    """내가 보낸 대기 중인 친구 요청 목록"""
+    return [SentRequestInfo(**r) for r in svc.get_sent_requests(user_id)]
+
+
+@router.delete("/requests/{friendship_id}", status_code=status.HTTP_204_NO_CONTENT)
+def cancel_request(
+    friendship_id: int,
+    user_id: int = Depends(get_current_user_id),
+    svc: FriendshipService = Depends(get_friendship_service)
+):
+    """내가 보낸 친구 요청 철회"""
+    try:
+        svc.cancel_request(user_id, friendship_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/requests/{friendship_id}", response_model=dict)

@@ -20,6 +20,8 @@ export const useFriends = () => {
     mutationFn: (username: string) => friendApi.sendRequest(username),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", "suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", "sent"] });
     },
   });
 
@@ -39,6 +41,19 @@ export const useFriends = () => {
     },
   });
 
+  const sentQuery = useQuery({
+    queryKey: ["friends", "sent"],
+    queryFn: friendApi.getSentRequests,
+  });
+
+  const cancelRequestMutation = useMutation({
+    mutationFn: (friendshipId: number) => friendApi.cancelRequest(friendshipId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends", "sent"] });
+      queryClient.invalidateQueries({ queryKey: ["friends", "suggestions"] });
+    },
+  });
+
   const suggestionsQuery = useQuery({
     queryKey: ["friends", "suggestions"],
     queryFn: friendApi.getSuggestions,
@@ -55,11 +70,13 @@ export const useFriends = () => {
   return {
     friends: friendsQuery.data ?? [],
     pendingRequests: pendingQuery.data ?? [],
+    sentRequests: sentQuery.data ?? [],
     suggestions: suggestionsQuery.data ?? [],
     isLoading: friendsQuery.isLoading,
     sendRequest: sendRequestMutation.mutateAsync,
     respondToRequest: respondMutation.mutateAsync,
     removeFriend: removeFriendMutation.mutateAsync,
+    cancelRequest: cancelRequestMutation.mutateAsync,
     isSending: sendRequestMutation.isPending,
     searchUsers,
   };

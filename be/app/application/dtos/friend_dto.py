@@ -22,10 +22,19 @@ class FriendInfo(BaseModel):
 
 
 class PendingRequestInfo(BaseModel):
-    """대기 중인 친구 요청 정보"""
+    """대기 중인 친구 요청 정보 (받은 요청)"""
     friendship_id: int
     requester_id: int
     requester_username: str
+    requester_display_name: str
+
+
+class SentRequestInfo(BaseModel):
+    """보낸 친구 요청 정보 (수락 대기 중)"""
+    friendship_id: int
+    addressee_id: int
+    addressee_username: str
+    addressee_display_name: str
 
 
 class UserSearchResult(BaseModel):

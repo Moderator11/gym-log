@@ -50,7 +50,10 @@ class FriendshipService:
 
         existing = self.friendship_repository.find_by_users(requester_id, addressee.id)
         if existing:
-            raise ValueError("이미 친구 요청이 존재합니다")
+            if existing.status in ("pending", "accepted"):
+                raise ValueError("이미 친구 요청이 존재합니다")
+            # declined 상태면 기존 레코드를 삭제하고 새 요청 생성
+            self.friendship_repository.delete(existing.id)
 
         friendship = Friendship(
             id=None,
@@ -99,8 +102,32 @@ class FriendshipService:
                     "friendship_id": f.id,
                     "requester_id": f.requester_id,
                     "requester_username": requester.username,
+                    "requester_display_name": requester.display_name or requester.username,
                 })
         return result
+
+    def get_sent_requests(self, user_id: int) -> list:
+        """사용자가 보낸 대기 중인 친구 요청 목록"""
+        sent = self.friendship_repository.find_pending_sent_by_user(user_id)
+        result = []
+        for f in sent:
+            addressee = self.user_repository.find_by_id(f.addressee_id)
+            if addressee:
+                result.append({
+                    "friendship_id": f.id,
+                    "addressee_id": f.addressee_id,
+                    "addressee_username": addressee.username,
+                    "addressee_display_name": addressee.display_name or addressee.username,
+                })
+        return result
+
+    def cancel_request(self, user_id: int, friendship_id: int) -> None:
+        """내가 보낸 친구 요청 철회"""
+        sent = self.friendship_repository.find_pending_sent_by_user(user_id)
+        target = next((f for f in sent if f.id == friendship_id), None)
+        if not target:
+            raise ValueError("보낸 친구 요청을 찾을 수 없습니다")
+        self.friendship_repository.delete(friendship_id)
 
     def are_friends(self, user_id: int, other_id: int) -> bool:
         """두 사용자가 친구인지 확인"""

@@ -11,6 +11,14 @@ export interface PendingRequest {
   friendship_id: number;
   requester_id: number;
   requester_username: string;
+  requester_display_name: string;
+}
+
+export interface SentRequest {
+  friendship_id: number;
+  addressee_id: number;
+  addressee_username: string;
+  addressee_display_name: string;
 }
 
 export interface UserSearchResult {

@@ -35,3 +35,8 @@ class FriendshipRepository(ABC):
     def update_status(self, friendship_id: int, status: str) -> Friendship:
         """친구 관계 상태 업데이트"""
         pass
+
+    @abstractmethod
+    def delete(self, friendship_id: int) -> bool:
+        """친구 관계 삭제"""
+        pass
