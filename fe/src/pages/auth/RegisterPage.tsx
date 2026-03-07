@@ -37,7 +37,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">회원가입</h2>
 
@@ -92,7 +92,7 @@ export const RegisterPage = () => {
           </Button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-600">
+        <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-300">
           이미 계정이 있으신가요?{" "}
           <Link to="/login" className="text-primary-600 hover:underline">
             로그인

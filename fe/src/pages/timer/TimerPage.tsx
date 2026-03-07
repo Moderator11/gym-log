@@ -82,10 +82,10 @@ const StopwatchTab = () => {
     <div className="flex flex-col items-center gap-8 py-6">
       {/* 시간 표시 */}
       <div className="flex items-end gap-1 select-none">
-        <span className="text-7xl font-mono font-bold text-gray-900 tabular-nums leading-none">
+        <span className="text-7xl font-mono font-bold text-gray-900 dark:text-gray-100 tabular-nums leading-none">
           {main}
         </span>
-        <span className="text-3xl font-mono font-semibold text-gray-400 tabular-nums leading-none mb-1">
+        <span className="text-3xl font-mono font-semibold text-gray-400 dark:text-gray-500 dark:text-gray-400 tabular-nums leading-none mb-1">
           .{sub}
         </span>
       </div>
@@ -106,14 +106,14 @@ const StopwatchTab = () => {
         <button
           onClick={handleReset}
           disabled={elapsed === 0 && !running}
-          className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
+          className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
           aria-label="초기화"
         >
-          <RotateCcw size={22} className="text-gray-700" />
+          <RotateCcw size={22} className="text-gray-700 dark:text-gray-300" />
         </button>
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">
         {running ? "측정 중…" : elapsed > 0 ? "일시정지됨" : "시작 버튼을 누르세요"}
       </p>
     </div>
@@ -208,7 +208,7 @@ const RestTimerTab = () => {
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               preset === sec && !done
                 ? "bg-primary-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:bg-gray-700"
             }`}
           >
             {label}
@@ -254,7 +254,7 @@ const RestTimerTab = () => {
           >
             {formatCountdown(remaining)}
           </span>
-          <span className="text-xs text-gray-400 mt-1.5">
+          <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-1.5">
             {done ? "완료!" : running ? "쉬는 중…" : ""}
           </span>
         </div>
@@ -277,10 +277,10 @@ const RestTimerTab = () => {
         <button
           onClick={handleReset}
           disabled={remaining === preset && !running && !done}
-          className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
+          className="w-16 h-16 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
           aria-label="초기화"
         >
-          <RotateCcw size={22} className="text-gray-700" />
+          <RotateCcw size={22} className="text-gray-700 dark:text-gray-300" />
         </button>
       </div>
     </div>
@@ -297,13 +297,13 @@ export const TimerPage = () => {
     <div className="max-w-md mx-auto space-y-6">
       {/* 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">타이머</h1>
-        <p className="text-sm text-gray-500 mt-0.5">스탑워치 · 휴식 타이머</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">타이머</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">스탑워치 · 휴식 타이머</p>
       </div>
 
       <Card>
         {/* 탭 */}
-        <div className="flex gap-1 mb-6 bg-gray-100 rounded-xl p-1">
+        <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
           {(
             [
               { id: "rest", label: "휴식 타이머" },
@@ -315,8 +315,8 @@ export const TimerPage = () => {
               onClick={() => setTab(id)}
               className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
                 tab === id
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300"
               }`}
             >
               {label}

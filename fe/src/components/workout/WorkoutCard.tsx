@@ -28,19 +28,19 @@ export const WorkoutCard = ({ workout, onCopy, disableLink }: WorkoutCardProps) 
           <div className="flex-1 min-w-0">
             {/* 제목 */}
             {workout.title && (
-              <p className="font-semibold text-gray-900 truncate mb-1.5">{workout.title}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100 truncate mb-1.5">{workout.title}</p>
             )}
 
-            <div className="flex items-center gap-2 text-gray-600 mb-2">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 mb-2">
               <Calendar size={15} />
               <span className="text-sm">{localDate}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-600 mb-3">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 mb-3">
               <Clock size={15} />
               <span className="text-sm">
                 {localStart} – {localEnd}{" "}
-                <span className="text-gray-400">({workout.duration_minutes}분)</span>
+                <span className="text-gray-400 dark:text-gray-500 dark:text-gray-400">({workout.duration_minutes}분)</span>
               </span>
             </div>
 
@@ -67,11 +67,11 @@ export const WorkoutCard = ({ workout, onCopy, disableLink }: WorkoutCardProps) 
                   : null;
 
                 return (
-                  <div key={idx} className="text-sm text-gray-500 flex items-center gap-1">
+                  <div key={idx} className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <span>·</span>
                     <span>{exercise.name}</span>
                     {firstSet && setDetail && (
-                      <span className="text-gray-400">
+                      <span className="text-gray-400 dark:text-gray-500 dark:text-gray-400">
                         ({exercise.sets.length}세트 / {setDetail})
                       </span>
                     )}
@@ -102,7 +102,7 @@ export const WorkoutCard = ({ workout, onCopy, disableLink }: WorkoutCardProps) 
                     e.stopPropagation();
                     setExpanded(false);
                   }}
-                  className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-600 mt-0.5 transition-colors"
+                  className="flex items-center gap-0.5 text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 mt-0.5 transition-colors"
                 >
                   <ChevronUp size={13} />
                   접기
@@ -120,7 +120,7 @@ export const WorkoutCard = ({ workout, onCopy, disableLink }: WorkoutCardProps) 
                 e.stopPropagation();
                 onCopy();
               }}
-              className="flex-shrink-0 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+              className="flex-shrink-0 p-1.5 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
               title="이 운동 복사해서 새 기록 만들기"
             >
               <Copy size={15} />

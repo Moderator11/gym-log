@@ -25,7 +25,7 @@ export const FriendWorkoutsPage = () => {
           <ArrowLeft size={16} className="mr-1" />
           친구 목록으로
         </Button>
-        <p className="text-center text-gray-500 py-12">
+        <p className="text-center text-gray-500 dark:text-gray-400 py-12">
           운동 기록을 불러올 수 없습니다. 친구가 공유를 비활성화했을 수 있습니다.
         </p>
       </div>
@@ -39,11 +39,11 @@ export const FriendWorkoutsPage = () => {
           <ArrowLeft size={16} className="mr-1" />
           친구 목록으로
         </Button>
-        <h1 className="text-2xl font-bold text-gray-900">친구의 운동 기록</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">친구의 운동 기록</h1>
       </div>
 
       {!workouts || workouts.length === 0 ? (
-        <p className="text-center text-gray-400 py-12">아직 운동 기록이 없습니다</p>
+        <p className="text-center text-gray-400 dark:text-gray-500 dark:text-gray-400 py-12">아직 운동 기록이 없습니다</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {workouts.map((workout) => (

@@ -199,7 +199,7 @@ export const WorkoutForm = ({
 
         {/* 시작 시간 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             시작 시간
           </label>
           <div className="flex gap-2">
@@ -212,7 +212,7 @@ export const WorkoutForm = ({
             <button
               type="button"
               onClick={() => setStartTime(getCurrentLocalTime())}
-              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 text-gray-600 transition-colors"
+              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
               title="현재 시각으로 설정"
             >
               <Clock size={14} />
@@ -222,7 +222,7 @@ export const WorkoutForm = ({
 
         {/* 종료 시간 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             종료 시간
           </label>
           <div className="flex gap-2">
@@ -235,7 +235,7 @@ export const WorkoutForm = ({
             <button
               type="button"
               onClick={() => setEndTime(getCurrentLocalTime())}
-              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300 text-gray-600 transition-colors"
+              className="flex-shrink-0 px-2 py-2 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
               title="현재 시각으로 설정"
             >
               <Clock size={14} />
@@ -249,7 +249,7 @@ export const WorkoutForm = ({
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">
             운동 목록{" "}
-            <span className="text-sm font-normal text-gray-400">(선택)</span>
+            <span className="text-sm font-normal text-gray-400 dark:text-gray-500 dark:text-gray-400">(선택)</span>
           </h3>
           <div className="flex items-center gap-2">
             {exercises.length > 1 && (
@@ -259,7 +259,7 @@ export const WorkoutForm = ({
                 className={`flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg border transition-colors ${
                   showReorderControls
                     ? "border-primary-300 bg-primary-50 text-primary-700"
-                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-900"
                 }`}
               >
                 <ArrowUpDown size={12} />
@@ -274,7 +274,7 @@ export const WorkoutForm = ({
         </div>
 
         {exercises.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-3">
+          <p className="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 text-center py-3">
             빈 세션으로 저장하거나 운동을 추가하세요.
           </p>
         )}
@@ -294,14 +294,14 @@ export const WorkoutForm = ({
                   type="button"
                   disabled={index === 0}
                   onClick={() => moveExercise(index, index - 1)}
-                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   aria-label="위로"
                 >
                   <ChevronUp size={15} />
                 </button>
                 <button
                   type="button"
-                  className="p-0.5 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing"
+                  className="p-0.5 text-gray-300 hover:text-gray-500 dark:text-gray-400 cursor-grab active:cursor-grabbing"
                   title="드래그하여 순서 변경"
                   tabIndex={-1}
                 >
@@ -311,7 +311,7 @@ export const WorkoutForm = ({
                   type="button"
                   disabled={index === exercises.length - 1}
                   onClick={() => moveExercise(index, index + 1)}
-                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                  className="p-0.5 rounded text-gray-300 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                   aria-label="아래로"
                 >
                   <ChevronDown size={15} />
@@ -332,7 +332,7 @@ export const WorkoutForm = ({
 
       {/* 메모 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           메모 (선택)
         </label>
         <textarea
@@ -341,10 +341,10 @@ export const WorkoutForm = ({
           placeholder="오늘 운동에 대한 메모를 남겨보세요."
           maxLength={2000}
           rows={3}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+          className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
         />
         {memo.length > 0 && (
-          <p className="text-xs text-gray-400 text-right mt-0.5">
+          <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 text-right mt-0.5">
             {memo.length}/2000
           </p>
         )}

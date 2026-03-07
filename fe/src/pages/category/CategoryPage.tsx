@@ -123,7 +123,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
           autoFocus
         />
         <div>
-          <p className="text-xs text-gray-500 mb-2">운동 타입</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">운동 타입</p>
           <div className="grid grid-cols-2 gap-2">
             {(
               [
@@ -140,7 +140,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
                 className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
                   exerciseType === value
                     ? "bg-primary-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300"
                 }`}
               >
                 {icon}
@@ -150,7 +150,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
           </div>
         </div>
         <div>
-          <p className="text-xs text-gray-500 mb-1">태그</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">태그</p>
           <TagInput tags={tags} onChange={setTags} />
         </div>
         <div className="flex gap-2 justify-end">
@@ -182,11 +182,11 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
   const typeLabel = typeLabelMap[category.exercise_type] ?? category.exercise_type;
 
   return (
-    <div className="flex items-start gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+    <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:border-gray-600 transition-colors">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium text-gray-900 truncate">{category.name}</p>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs whitespace-nowrap">
+          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{category.name}</p>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs whitespace-nowrap">
             {typeIcon}
             {typeLabel}
           </span>
@@ -196,7 +196,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
             {category.tags.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs"
+                className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs"
               >
                 <Tag size={10} />
                 {t}
@@ -209,7 +209,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
       <div className="flex gap-1.5 flex-shrink-0">
         <button
           onClick={() => setEditing(true)}
-          className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+          className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
           title="수정"
         >
           <Pencil size={16} />
@@ -226,7 +226,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300"
             >
               취소
             </button>
@@ -234,7 +234,7 @@ const CategoryRow = ({ category, onUpdate, onDelete }: CategoryRowProps) => {
         ) : (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/30 rounded-lg transition-colors"
             title="삭제"
           >
             <Trash2 size={16} />
@@ -332,8 +332,8 @@ export const CategoryPage = () => {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">운동 카테고리</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">운동 카테고리</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             {categories.length}개의 카테고리
           </p>
         </div>
@@ -360,7 +360,7 @@ export const CategoryPage = () => {
 
       {/* 기본 운동 불러오기 결과 */}
       {defaultsResult && (
-        <div className="px-4 py-2.5 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+        <div className="px-4 py-2.5 bg-green-50 dark:bg-green-900/30 border border-green-200 rounded-lg text-sm text-green-700 dark:text-green-300">
           {defaultsResult}
         </div>
       )}
@@ -368,7 +368,7 @@ export const CategoryPage = () => {
       {/* 신규 생성 폼 */}
       {showForm && (
         <Card className="space-y-4 border-primary-200 bg-primary-50">
-          <h2 className="font-semibold text-gray-800">새 카테고리</h2>
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200">새 카테고리</h2>
           <Input
             label="운동 이름"
             value={newName}
@@ -378,7 +378,7 @@ export const CategoryPage = () => {
             autoFocus
           />
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">운동 타입</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">운동 타입</p>
             <div className="grid grid-cols-2 gap-2">
               {(
                 [
@@ -395,7 +395,7 @@ export const CategoryPage = () => {
                   className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg font-medium transition-colors ${
                     newExerciseType === value
                       ? "bg-primary-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-900"
                   }`}
                 >
                   {icon}
@@ -405,7 +405,7 @@ export const CategoryPage = () => {
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-1">태그</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">태그</p>
             <TagInput tags={newTags} onChange={setNewTags} />
           </div>
           <div className="flex gap-2 justify-end">
@@ -438,7 +438,7 @@ export const CategoryPage = () => {
       {/* 태그 필터 */}
       {allTags.length > 0 && (
         <div>
-          <p className="text-xs text-gray-500 mb-2 font-medium">태그로 필터</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">태그로 필터</p>
           <div className="flex flex-wrap gap-2">
             {allTags.map((tag) => {
               const active = selectedTags.includes(tag);
@@ -449,7 +449,7 @@ export const CategoryPage = () => {
                   className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     active
                       ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:bg-gray-700"
                   }`}
                 >
                   <Tag size={12} />
@@ -461,7 +461,7 @@ export const CategoryPage = () => {
             {selectedTags.length > 0 && (
               <button
                 onClick={() => setSelectedTags([])}
-                className="px-3 py-1 rounded-full text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                className="px-3 py-1 rounded-full text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 transition-colors"
               >
                 필터 초기화
               </button>
@@ -476,7 +476,7 @@ export const CategoryPage = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
           {selectedTags.length > 0
             ? "해당 태그의 카테고리가 없습니다."
             : "아직 카테고리가 없습니다. 추가해보세요!"}

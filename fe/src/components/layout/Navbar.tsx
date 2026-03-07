@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/Button";
-import { Dumbbell, LogOut, Tag, Menu, X, Users, BarChart2, Activity, Timer, UserCircle } from "lucide-react";
+import { Dumbbell, LogOut, Tag, Menu, X, Users, BarChart2, Activity, Timer, UserCircle, Moon, Sun } from "lucide-react";
 
 export const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -36,13 +38,13 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-40 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 items-center">
           {/* 로고 */}
           <Link
             to="/"
-            className="flex items-center gap-2 text-lg font-bold text-primary-600"
+            className="flex items-center gap-2 text-lg font-bold text-primary-600 dark:text-primary-400"
           >
             <Dumbbell size={24} />
             <span>짐로그</span>
@@ -58,8 +60,8 @@ export const Navbar = () => {
                     <button
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         active
-                          ? "bg-primary-50 text-primary-700"
-                          : "text-gray-600 hover:bg-gray-100"
+                          ? "bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
                       {icon}
@@ -73,6 +75,15 @@ export const Navbar = () => {
 
           {/* 우측 버튼 */}
           <div className="flex items-center gap-1">
+            {/* 다크모드 토글 */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="테마 전환"
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
             {isAuthenticated ? (
               <>
                 <Button
@@ -94,8 +105,8 @@ export const Navbar = () => {
                         <button
                           className={`p-2 rounded-lg transition-colors ${
                             active
-                              ? "text-primary-600 bg-primary-50"
-                              : "text-gray-500 hover:bg-gray-100"
+                              ? "text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/40"
+                              : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                           }`}
                         >
                           {icon}
@@ -107,7 +118,7 @@ export const Navbar = () => {
 
                 {/* 모바일 햄버거 (나머지 메뉴) */}
                 <button
-                  className="sm:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100"
+                  className="sm:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={() => setMobileOpen((o) => !o)}
                   aria-label="더보기 메뉴"
                 >
@@ -132,7 +143,7 @@ export const Navbar = () => {
 
       {/* 모바일 드롭다운 (카테고리·건강기록·친구·로그아웃) */}
       {isAuthenticated && mobileOpen && (
-        <div className="sm:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
+        <div className="sm:hidden border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 space-y-1">
           {mobileMenuLinks.map(({ to, label, icon }) => {
             const active = location.pathname.startsWith(to);
             return (
@@ -142,8 +153,8 @@ export const Navbar = () => {
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   active
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
               >
                 {icon}
@@ -156,7 +167,7 @@ export const Navbar = () => {
               logout();
               setMobileOpen(false);
             }}
-            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <LogOut size={16} />
             로그아웃

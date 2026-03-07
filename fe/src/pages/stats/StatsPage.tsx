@@ -57,7 +57,7 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
 
   if (prData.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400 text-sm">
+      <div className="text-center py-8 text-gray-400 dark:text-gray-500 dark:text-gray-400 text-sm">
         아직 기록된 운동이 없습니다.
       </div>
     );
@@ -77,7 +77,7 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
       className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
         active
           ? "bg-gray-700 text-white"
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+          : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:bg-gray-700"
       }`}
     >
       {children}
@@ -92,7 +92,7 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Zap size={14} className="text-blue-500" />
-              <h3 className="text-sm font-semibold text-gray-600">무산소</h3>
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300">무산소</h3>
             </div>
             <div className="flex gap-1">
               <ToggleBtn
@@ -113,36 +113,36 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
             {anaerobic.map((pr) => (
               <div
                 key={pr.exercise_name}
-                className="flex items-start justify-between bg-blue-50 rounded-lg px-4 py-3"
+                className="flex items-start justify-between bg-blue-50 dark:bg-blue-900/30 rounded-lg px-4 py-3"
               >
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">
+                  <p className="font-medium text-gray-800 dark:text-gray-200 text-sm">
                     {pr.exercise_name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-0.5">
                     {pr.achieved_date}
                   </p>
                 </div>
                 <div className="text-right">
                   {anaerobicView === "weight" ? (
                     pr.best_weight_kg != null ? (
-                      <p className="font-bold text-blue-600 text-sm">
+                      <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">
                         {pr.best_weight_kg} kg
                       </p>
                     ) : (
-                      <p className="text-xs text-gray-400">기록 없음</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">기록 없음</p>
                     )
                   ) : pr.best_volume != null ? (
                     <>
-                      <p className="font-bold text-blue-600 text-sm">
+                      <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">
                         {pr.best_volume_weight_kg}kg × {pr.best_volume_reps}회
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         볼륨 {pr.best_volume}
                       </p>
                     </>
                   ) : (
-                    <p className="text-xs text-gray-400">기록 없음</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">기록 없음</p>
                   )}
                 </div>
               </div>
@@ -157,7 +157,7 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Wind size={14} className="text-green-500" />
-              <h3 className="text-sm font-semibold text-gray-600">유산소</h3>
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300">유산소</h3>
             </div>
             <div className="flex gap-1">
               <ToggleBtn
@@ -178,13 +178,13 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
             {aerobic.map((pr) => (
               <div
                 key={pr.exercise_name}
-                className="flex items-start justify-between bg-green-50 rounded-lg px-4 py-3"
+                className="flex items-start justify-between bg-green-50 dark:bg-green-900/30 rounded-lg px-4 py-3"
               >
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">
+                  <p className="font-medium text-gray-800 dark:text-gray-200 text-sm">
                     {pr.exercise_name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-0.5">
                     {pr.achieved_date}
                   </p>
                 </div>
@@ -192,24 +192,24 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
                   {aerobicView === "distance" ? (
                     pr.best_distance_km != null ? (
                       <>
-                        <p className="font-bold text-green-600 text-sm">
+                        <p className="font-bold text-green-600 dark:text-green-400 text-sm">
                           {pr.best_distance_km} km
                         </p>
                         {pr.best_duration_seconds != null && (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDuration(pr.best_duration_seconds)}
                           </p>
                         )}
                       </>
                     ) : (
-                      <p className="text-xs text-gray-400">기록 없음</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">기록 없음</p>
                     )
                   ) : pr.best_avg_speed_kmh != null ? (
-                    <p className="font-bold text-green-600 text-sm">
+                    <p className="font-bold text-green-600 dark:text-green-400 text-sm">
                       {pr.best_avg_speed_kmh} km/h
                     </p>
                   ) : (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">
                       거리+시간 기록 필요
                     </p>
                   )}
@@ -225,29 +225,29 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
         <div>
           <div className="flex items-center gap-1.5 mb-2">
             <Hash size={14} className="text-purple-500" />
-            <h3 className="text-sm font-semibold text-gray-600">횟수</h3>
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300">횟수</h3>
           </div>
           <div className="space-y-2">
             {count.map((pr) => (
               <div
                 key={pr.exercise_name}
-                className="flex items-start justify-between bg-purple-50 rounded-lg px-4 py-3"
+                className="flex items-start justify-between bg-purple-50 dark:bg-purple-900/30 rounded-lg px-4 py-3"
               >
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">
+                  <p className="font-medium text-gray-800 dark:text-gray-200 text-sm">
                     {pr.exercise_name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-0.5">
                     {pr.achieved_date}
                   </p>
                 </div>
                 <div className="text-right">
                   {pr.best_reps_only != null ? (
-                    <p className="font-bold text-purple-600 text-sm">
+                    <p className="font-bold text-purple-600 dark:text-purple-400 text-sm">
                       최대 {pr.best_reps_only}회
                     </p>
                   ) : (
-                    <p className="text-xs text-gray-400">기록 없음</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">기록 없음</p>
                   )}
                 </div>
               </div>
@@ -261,29 +261,29 @@ const PRSection = ({ prData }: { prData: ExercisePR[] }) => {
         <div>
           <div className="flex items-center gap-1.5 mb-2">
             <Timer size={14} className="text-orange-500" />
-            <h3 className="text-sm font-semibold text-gray-600">시간</h3>
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300">시간</h3>
           </div>
           <div className="space-y-2">
             {duration.map((pr) => (
               <div
                 key={pr.exercise_name}
-                className="flex items-start justify-between bg-orange-50 rounded-lg px-4 py-3"
+                className="flex items-start justify-between bg-orange-50 dark:bg-orange-900/30 rounded-lg px-4 py-3"
               >
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">
+                  <p className="font-medium text-gray-800 dark:text-gray-200 text-sm">
                     {pr.exercise_name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-0.5">
                     {pr.achieved_date}
                   </p>
                 </div>
                 <div className="text-right">
                   {pr.best_duration_seconds != null ? (
-                    <p className="font-bold text-orange-600 text-sm">
+                    <p className="font-bold text-orange-600 dark:text-orange-400 text-sm">
                       {formatDuration(pr.best_duration_seconds)}
                     </p>
                   ) : (
-                    <p className="text-xs text-gray-400">기록 없음</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">기록 없음</p>
                   )}
                 </div>
               </div>
@@ -353,62 +353,62 @@ export const StatsPage = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">통계</h1>
-        <p className="text-sm text-gray-500 mt-0.5">운동 기록 분석</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">통계</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">운동 기록 분석</p>
       </div>
 
       {/* 마지막 운동일 vs 오늘 비교 */}
       {comparison && (
         <Card>
-          <h2 className="font-semibold text-gray-800 mb-4">
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
             {getComparisonLabel(comparison.days_ago)}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-xs text-gray-600 font-medium mb-1">
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4">
+              <p className="text-xs text-gray-600 dark:text-gray-300 font-medium mb-1">
                 오늘 무산소 볼륨
               </p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {comparison.today.total_anaerobic_volume}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {comparison.today.workout_count}개 운동
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-xs text-gray-600 font-medium mb-1">
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+              <p className="text-xs text-gray-600 dark:text-gray-300 font-medium mb-1">
                 {getPastLabel(comparison.days_ago)} 무산소 볼륨
               </p>
-              <p className="text-2xl font-bold text-gray-600">
+              <p className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                 {comparison.yesterday.total_anaerobic_volume}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {comparison.yesterday.workout_count}개 운동
               </p>
             </div>
 
             <div
-              className={`rounded-lg p-4 ${comparison.volume_change >= 0 ? "bg-green-50" : "bg-red-50"}`}
+              className={`rounded-lg p-4 ${comparison.volume_change >= 0 ? "bg-green-50 dark:bg-green-900/30" : "bg-red-50 dark:bg-red-900/30"}`}
             >
-              <p className="text-xs text-gray-600 font-medium mb-1">
+              <p className="text-xs text-gray-600 dark:text-gray-300 font-medium mb-1">
                 볼륨 변화
               </p>
               <div className="flex items-center gap-2">
                 {comparison.volume_change >= 0 ? (
-                  <TrendingUp className="text-green-600" size={20} />
+                  <TrendingUp className="text-green-600 dark:text-green-400" size={20} />
                 ) : (
-                  <TrendingDown className="text-red-600" size={20} />
+                  <TrendingDown className="text-red-600 dark:text-red-400" size={20} />
                 )}
                 <div>
                   <p
-                    className={`text-2xl font-bold ${comparison.volume_change >= 0 ? "text-green-600" : "text-red-600"}`}
+                    className={`text-2xl font-bold ${comparison.volume_change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                   >
                     {comparison.volume_change > 0 ? "+" : ""}
                     {comparison.volume_change}
                   </p>
                   {comparison.volume_change_pct !== null && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {comparison.volume_change_pct > 0 ? "+" : ""}
                       {comparison.volume_change_pct}%
                     </p>
@@ -422,7 +422,7 @@ export const StatsPage = () => {
 
       {/* 기간별 분석 */}
       <Card>
-        <h2 className="font-semibold text-gray-800 mb-4">기간별 분석</h2>
+        <h2 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">기간별 분석</h2>
 
         {/* 탭 */}
         <div className="flex gap-2 mb-4">
@@ -449,20 +449,20 @@ export const StatsPage = () => {
           <div className="space-y-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-3 font-medium text-gray-600">
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-2 px-3 font-medium text-gray-600 dark:text-gray-300">
                     날짜
                   </th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-600">
+                  <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-300">
                     운동
                   </th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-600">
+                  <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-300">
                     세트
                   </th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-600">
+                  <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-300">
                     무산소 볼륨
                   </th>
-                  <th className="text-right py-2 px-3 font-medium text-gray-600">
+                  <th className="text-right py-2 px-3 font-medium text-gray-600 dark:text-gray-300">
                     유산소 거리
                   </th>
                 </tr>
@@ -471,7 +471,7 @@ export const StatsPage = () => {
                 {periodStats.map((stat, idx) => (
                   <tr
                     key={idx}
-                    className="border-b border-gray-100 hover:bg-gray-50"
+                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-900"
                   >
                     <td className="py-2 px-3">{stat.date}</td>
                     <td className="text-right py-2 px-3">
@@ -490,7 +490,7 @@ export const StatsPage = () => {
             </table>
           </div>
         ) : (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-gray-400 dark:text-gray-500 dark:text-gray-400">
             {getPeriodLabel()} 동안의 운동 기록이 없습니다.
           </div>
         )}
@@ -499,21 +499,21 @@ export const StatsPage = () => {
       {/* 월별 캘린더 */}
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-800">월별 운동 기록</h2>
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200">월별 운동 기록</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={handleCalPrev}
-              className="p-1 rounded hover:bg-gray-100 text-gray-500"
+              className="p-1 rounded hover:bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
               aria-label="이전 달"
             >
               <ChevronLeft size={18} />
             </button>
-            <span className="text-sm font-medium text-gray-700 w-20 text-center">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-20 text-center">
               {calYear}년 {calMonth}월
             </span>
             <button
               onClick={handleCalNext}
-              className="p-1 rounded hover:bg-gray-100 text-gray-500"
+              className="p-1 rounded hover:bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
               aria-label="다음 달"
             >
               <ChevronRight size={18} />
@@ -526,7 +526,7 @@ export const StatsPage = () => {
           {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
             <div
               key={d}
-              className="text-center text-xs text-gray-400 font-medium py-1"
+              className="text-center text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 font-medium py-1"
             >
               {d}
             </div>
@@ -556,7 +556,7 @@ export const StatsPage = () => {
                     ${
                       hasWorkout
                         ? "bg-primary-600 text-white font-semibold"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700"
                     }`}
                   >
                     {day}
@@ -572,7 +572,7 @@ export const StatsPage = () => {
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <Trophy size={18} className="text-yellow-500" />
-          <h2 className="font-semibold text-gray-800">
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200">
             카테고리별 개인 최고 기록 (PR)
           </h2>
         </div>
@@ -588,14 +588,14 @@ export const StatsPage = () => {
       {/* 건강 지표 추이 */}
       {healthSeries.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             건강 지표 추이
           </h2>
           {healthSeries.map((series) => (
             <Card key={series.metric_id}>
-              <h3 className="font-semibold text-gray-800 mb-4">
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">
                 {series.metric_name}
-                <span className="ml-2 text-sm font-normal text-gray-400">
+                <span className="ml-2 text-sm font-normal text-gray-400 dark:text-gray-500 dark:text-gray-400">
                   ({series.metric_unit})
                 </span>
               </h3>

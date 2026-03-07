@@ -32,14 +32,14 @@ export const Modal = ({ isOpen, onClose, title, children, headerActions }: Modal
           onClick={onClose}
         />
 
-        <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-4 border-b">
+        <div className="relative bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
             <h2 className="text-xl font-semibold">{title}</h2>
             <div className="flex items-center gap-2">
               {headerActions}
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
               >
                 <X size={24} />
               </button>

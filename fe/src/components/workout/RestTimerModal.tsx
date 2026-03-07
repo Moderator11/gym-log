@@ -132,13 +132,13 @@ export const RestTimerModal = ({ isOpen, onClose }: RestTimerModalProps) => {
         {/* Backdrop — 클릭해도 닫히지 않도록 (운동 중 실수 방지) */}
         <div className="fixed inset-0 bg-black bg-opacity-60" />
 
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm">
           {/* 헤더 */}
           <div className="flex items-center justify-between px-5 py-4 border-b">
-            <h2 className="text-base font-semibold text-gray-800">휴식 타이머</h2>
+            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-200">휴식 타이머</h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-1 rounded-lg text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 transition-colors"
             >
               <X size={20} />
             </button>
@@ -154,7 +154,7 @@ export const RestTimerModal = ({ isOpen, onClose }: RestTimerModalProps) => {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     preset === sec && !done
                       ? "bg-primary-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:bg-gray-700"
                   }`}
                 >
                   {label}
@@ -181,7 +181,7 @@ export const RestTimerModal = ({ isOpen, onClose }: RestTimerModalProps) => {
                 <span className="text-4xl font-mono font-bold tabular-nums" style={{ color: ringColor }}>
                   {formatCountdown(remaining)}
                 </span>
-                <span className="text-xs text-gray-400 mt-1">
+                <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 mt-1">
                   {done ? "완료! 다음 세트로 GO 💪" : running ? "쉬는 중…" : ""}
                 </span>
               </div>
@@ -204,10 +204,10 @@ export const RestTimerModal = ({ isOpen, onClose }: RestTimerModalProps) => {
               <button
                 onClick={handleReset}
                 disabled={remaining === preset && !running && !done}
-                className="w-14 h-14 rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
+                className="w-14 h-14 rounded-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 active:bg-gray-400 disabled:opacity-40 shadow-md transition-colors"
                 aria-label="초기화"
               >
-                <RotateCcw size={19} className="text-gray-700" />
+                <RotateCcw size={19} className="text-gray-700 dark:text-gray-300" />
               </button>
             </div>
 

@@ -46,7 +46,7 @@ export const WorkoutListPage = () => {
               className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition-colors ${
                 isAscending
                   ? "border-primary-300 bg-primary-50 text-primary-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-900"
               }`}
               title={isAscending ? "최신순으로 보기" : "오래된순으로 보기"}
             >
@@ -63,7 +63,7 @@ export const WorkoutListPage = () => {
 
       {workouts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg mb-4">
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
             아직 운동 기록이 없습니다
           </p>
           <Button onClick={() => setIsModalOpen(true)}>

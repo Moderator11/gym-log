@@ -120,7 +120,7 @@ export const WorkoutDetailPage = () => {
   if (!workout) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">운동 기록을 찾을 수 없습니다</p>
+        <p className="text-gray-500 dark:text-gray-400 text-lg">운동 기록을 찾을 수 없습니다</p>
       </div>
     );
   }
@@ -163,27 +163,27 @@ export const WorkoutDetailPage = () => {
 
         {/* 제목 */}
         {workout.title && (
-          <p className="text-lg font-semibold text-gray-900 mb-4">{workout.title}</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{workout.title}</p>
         )}
 
         {/* 세션 메타 정보 */}
         <div className="space-y-3 mb-6">
           <div className="flex items-center gap-3 text-sm">
             <Calendar className="text-primary-600 flex-shrink-0" size={18} />
-            <span className="font-medium text-gray-500 w-12">날짜</span>
+            <span className="font-medium text-gray-500 dark:text-gray-400 w-12">날짜</span>
             <span>{localDate}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Clock className="text-primary-600 flex-shrink-0" size={18} />
-            <span className="font-medium text-gray-500 w-12">시간</span>
+            <span className="font-medium text-gray-500 dark:text-gray-400 w-12">시간</span>
             <span>
               {localStart} – {localEnd}{" "}
-              <span className="text-gray-400">({workout.duration_minutes}분)</span>
+              <span className="text-gray-400 dark:text-gray-500 dark:text-gray-400">({workout.duration_minutes}분)</span>
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Dumbbell className="text-primary-600 flex-shrink-0" size={18} />
-            <span className="font-medium text-gray-500 w-12">운동</span>
+            <span className="font-medium text-gray-500 dark:text-gray-400 w-12">운동</span>
             <span>{workout.exercises.length}개</span>
           </div>
         </div>
@@ -193,9 +193,9 @@ export const WorkoutDetailPage = () => {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="text-primary-600 flex-shrink-0" size={18} />
-              <span className="text-sm font-medium text-gray-500">메모</span>
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">메모</span>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 rounded-lg p-3 border border-gray-100">
+            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
               {workout.memo}
             </p>
           </div>
@@ -209,7 +209,7 @@ export const WorkoutDetailPage = () => {
               <button
                 type="button"
                 onClick={enterExReorderMode}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-primary-600 transition-colors px-2 py-1 rounded-lg hover:bg-primary-50"
+                className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-primary-600 transition-colors px-2 py-1 rounded-lg hover:bg-primary-50"
               >
                 <GripVertical size={13} />
                 순서 편집
@@ -220,7 +220,7 @@ export const WorkoutDetailPage = () => {
                 <button
                   type="button"
                   onClick={cancelExReorderMode}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded-lg hover:bg-gray-100"
+                  className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 px-2 py-1 rounded-lg hover:bg-gray-100 dark:bg-gray-700"
                 >
                   <X size={13} />
                   취소
@@ -239,7 +239,7 @@ export const WorkoutDetailPage = () => {
           </div>
 
           {workout.exercises.length === 0 ? (
-            <p className="text-sm text-gray-400">등록된 운동이 없습니다.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400">등록된 운동이 없습니다.</p>
           ) : isExReorderMode ? (
             /* 드래그 순서 편집 모드 */
             <div className="space-y-2">
@@ -250,17 +250,17 @@ export const WorkoutDetailPage = () => {
                   onDragStart={() => handleExDragStart(idx)}
                   onDragOver={(e) => handleExDragOver(e, idx)}
                   onDragEnd={handleExDragEnd}
-                  className="flex items-center gap-2 p-3 bg-white border border-gray-200 rounded-xl cursor-grab active:cursor-grabbing active:opacity-60 transition-all"
+                  className="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl cursor-grab active:cursor-grabbing active:opacity-60 transition-all"
                 >
-                  <GripVertical size={16} className="text-gray-400 flex-shrink-0" />
-                  <span className="font-medium text-gray-900 flex-1 truncate">{exercise.name}</span>
-                  <span className="text-xs text-gray-400">{exercise.sets.length}세트</span>
+                  <GripVertical size={16} className="text-gray-400 dark:text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <span className="font-medium text-gray-900 dark:text-gray-100 flex-1 truncate">{exercise.name}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{exercise.sets.length}세트</span>
                   <div className="flex flex-col gap-0.5 flex-shrink-0">
                     <button
                       type="button"
                       disabled={idx === 0}
                       onClick={() => moveExercise(idx, idx - 1)}
-                      className="p-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      className="p-0.5 rounded text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                       aria-label="위로"
                     >
                       <ChevronUp size={15} />
@@ -269,7 +269,7 @@ export const WorkoutDetailPage = () => {
                       type="button"
                       disabled={idx === orderedExercises.length - 1}
                       onClick={() => moveExercise(idx, idx + 1)}
-                      className="p-0.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      className="p-0.5 rounded text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
                       aria-label="아래로"
                     >
                       <ChevronDown size={15} />
@@ -300,19 +300,19 @@ export const WorkoutDetailPage = () => {
                 return (
                   <div
                     key={idx}
-                    className="bg-gray-50 rounded-xl p-3 border border-gray-100"
+                    className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 border border-gray-100 dark:border-gray-700"
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                         {exercise.name}
                       </h3>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full text-xs">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs">
                         {typeIcon}
                         {typeLabel}
                       </span>
                     </div>
                     {exercise.sets.length === 0 ? (
-                      <p className="text-xs text-gray-400">세트 기록 없음</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">세트 기록 없음</p>
                     ) : (
                       <div className="space-y-1">
                         {exercise.sets.map((set, setIdx) => (
@@ -320,7 +320,7 @@ export const WorkoutDetailPage = () => {
                             key={setIdx}
                             className="flex items-center gap-3 text-sm"
                           >
-                            <span className="text-gray-400 w-12 text-xs">
+                            <span className="text-gray-400 dark:text-gray-500 dark:text-gray-400 w-12 text-xs">
                               {setIdx + 1}세트
                             </span>
                             {exercise.exercise_type === "aerobic" ? (
@@ -408,7 +408,7 @@ export const WorkoutDetailPage = () => {
         title="운동 기록 삭제"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             정말로 이 운동 기록을 삭제하시겠습니까?
           </p>
           <div className="flex gap-3 justify-end">

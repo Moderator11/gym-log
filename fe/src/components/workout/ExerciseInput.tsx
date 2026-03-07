@@ -46,12 +46,12 @@ const Stepper = ({ label, value, step, inputStep, min, onChange }: StepperProps)
 
   return (
     <div className="flex flex-col items-center gap-0.5">
-      <span className="text-xs text-gray-400">{label}</span>
+      <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400">{label}</span>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={dec}
-          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg text-gray-700 font-bold transition-colors touch-manipulation"
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-700 active:bg-gray-300 rounded-lg text-gray-700 dark:text-gray-300 font-bold transition-colors touch-manipulation"
         >
           <Minus size={13} />
         </button>
@@ -77,12 +77,12 @@ const Stepper = ({ label, value, step, inputStep, min, onChange }: StepperProps)
               setInputValue(String(parsed));
             }
           }}
-          className="w-16 text-center text-sm font-medium border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="w-16 text-center text-sm font-medium border border-gray-300 dark:border-gray-600 rounded-lg py-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
         <button
           type="button"
           onClick={inc}
-          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg text-gray-700 font-bold transition-colors touch-manipulation"
+          className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-700 active:bg-gray-300 rounded-lg text-gray-700 dark:text-gray-300 font-bold transition-colors touch-manipulation"
         >
           <Plus size={13} />
         </button>
@@ -169,7 +169,7 @@ export const ExerciseInput = ({
     const typeLabel = typeLabelMap[exercise.exercise_type] ?? exercise.exercise_type;
 
     return (
-      <div className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 border border-indigo-200 rounded-xl">
+      <div className="flex items-center gap-2 px-3 py-2.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-xl">
         {/* 이름 레이블 */}
         <button
           type="button"
@@ -177,22 +177,22 @@ export const ExerciseInput = ({
           className="flex-1 text-left min-w-0"
         >
           {exercise.name ? (
-            <span className="text-sm font-semibold text-indigo-800 truncate block">
+            <span className="text-sm font-semibold text-indigo-800 dark:text-indigo-300 truncate block">
               {exercise.name}
             </span>
           ) : (
-            <span className="text-sm text-indigo-400">운동 선택…</span>
+            <span className="text-sm text-indigo-400 dark:text-indigo-500">운동 선택…</span>
           )}
         </button>
 
         {/* 타입 배지 */}
-        <span className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+        <span className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-800/50 px-2 py-0.5 rounded-full whitespace-nowrap">
           {typeIcon}
           {typeLabel}
         </span>
 
         {/* 세트 배지 */}
-        <span className="flex-shrink-0 text-xs text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full">
+        <span className="flex-shrink-0 text-xs text-indigo-500 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-800/50 px-2 py-0.5 rounded-full">
           {exercise.sets.length > 0 ? `${exercise.sets.length}세트` : "세트 없음"}
         </span>
 
@@ -200,7 +200,7 @@ export const ExerciseInput = ({
         <button
           type="button"
           onClick={() => setCollapsed(false)}
-          className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors flex-shrink-0"
+          className="p-1.5 text-indigo-400 dark:text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 rounded-lg transition-colors flex-shrink-0"
           title="펼치기"
         >
           <ChevronDown size={15} />
@@ -210,7 +210,7 @@ export const ExerciseInput = ({
         <button
           type="button"
           onClick={onRemove}
-          className="p-1.5 text-indigo-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+          className="p-1.5 text-indigo-300 dark:text-indigo-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0"
           title="운동 삭제"
         >
           <Trash2 size={15} />
@@ -221,11 +221,11 @@ export const ExerciseInput = ({
 
   /* 펼친 상태 — 전체 편집 UI */
   return (
-    <div className="border border-gray-200 rounded-xl bg-white overflow-hidden">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 overflow-hidden">
       {/* 헤더: 운동 이름 선택 + 접기 + 삭제 */}
       <div className="flex gap-2 items-end p-3 sm:p-4">
         <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
             운동 이름
           </label>
           {showNewInput ? (
@@ -238,7 +238,7 @@ export const ExerciseInput = ({
                   handleNameChange(e.target.value);
                 }}
                 placeholder="운동 이름 직접 입력"
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
               <button
                 type="button"
@@ -247,14 +247,14 @@ export const ExerciseInput = ({
                   setNewName("");
                   handleNameChange("");
                 }}
-                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600"
+                className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300"
               >
                 목록
               </button>
             </div>
           ) : (
             <select
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-800"
               value={exercise.name}
               onChange={(e) => {
                 if (e.target.value === "__new__") {
@@ -285,7 +285,7 @@ export const ExerciseInput = ({
         <button
           type="button"
           onClick={() => setCollapsed(true)}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
           title="접기"
         >
           <ChevronUp size={16} />
@@ -295,7 +295,7 @@ export const ExerciseInput = ({
         <button
           type="button"
           onClick={onRemove}
-          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+          className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
           title="운동 삭제"
         >
           <Trash2 size={16} />
@@ -305,9 +305,9 @@ export const ExerciseInput = ({
       {/* 세트 목록 */}
       <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
             세트 기록{" "}
-            <span className="text-gray-400 font-normal">({exercise.sets.length}세트)</span>
+            <span className="text-gray-400 dark:text-gray-500 dark:text-gray-400 font-normal">({exercise.sets.length}세트)</span>
           </span>
           <Button type="button" size="sm" onClick={addSet}>
             <Plus size={13} className="mr-1" />
@@ -316,7 +316,7 @@ export const ExerciseInput = ({
         </div>
 
         {exercise.sets.length === 0 && (
-          <p className="text-xs text-gray-400 py-1">
+          <p className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 py-1">
             세트 없이 저장하거나, 세트를 추가하세요.
           </p>
         )}
@@ -324,9 +324,9 @@ export const ExerciseInput = ({
         {exercise.sets.map((set, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2"
+            className="flex items-center justify-between gap-2 bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2"
           >
-            <span className="text-xs text-gray-400 w-8 flex-shrink-0">
+            <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-400 w-8 flex-shrink-0">
               {idx + 1}세트
             </span>
             <div className="flex items-center gap-3 flex-1 justify-center flex-wrap">
