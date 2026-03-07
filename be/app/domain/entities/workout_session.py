@@ -22,9 +22,12 @@ class WorkoutSession:
         self.exercises.append(exercise)
 
     def get_duration_minutes(self) -> int:
-        """운동 시간 계산 (분)"""
+        """운동 시간 계산 (분). end_time < start_time이면 자정을 넘긴 것으로 간주해 하루를 더한다."""
+        from datetime import timedelta
         start = datetime.combine(date.today(), self.start_time)
         end = datetime.combine(date.today(), self.end_time)
+        if end < start:
+            end += timedelta(days=1)
         return int((end - start).total_seconds() / 60)
 
     def __str__(self):
