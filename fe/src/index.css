@@ -19,3 +19,13 @@ code {
 * {
   box-sizing: border-box;
 }
+
+/* iOS Safari: date/time input이 컨테이너를 벗어나는 문제 방지 */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+  max-width: 100%;
+  min-width: 0;
+}
