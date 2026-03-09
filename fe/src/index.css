@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 라이트 모드 오버스크롤 배경 = bg-gray-50 */
+html {
+  background-color: #f9fafb;
+  overscroll-behavior-y: none; /* iOS 16+: 바운스 효과 제거 */
+}
+
+/* 다크 모드 오버스크롤 배경 = bg-gray-950 */
+html.dark {
+  background-color: #030712;
+}
+
 body {
   margin: 0;
   font-family:
@@ -9,6 +20,7 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none; /* iOS 16+: 바운스 효과 제거 */
 }
 
 code {
